@@ -1,0 +1,58 @@
+services:
+  # Next.js Dashboard
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: dygsom-dashboard
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      # Application
+      - NODE_ENV=development
+      - NEXT_PUBLIC_APP_NAME=DYGSOM Fraud Dashboard
+      - NEXT_PUBLIC_APP_VERSION=1.0.0
+      - NEXT_PUBLIC_ENVIRONMENT=development
+
+      # API Backend (conecta al backend en otro contenedor)
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+      - NEXT_PUBLIC_API_TIMEOUT=30000
+
+      # Authentication
+      - NEXT_PUBLIC_TOKEN_STORAGE_KEY=dygsom_auth_token
+      - NEXT_PUBLIC_TOKEN_EXPIRY_HOURS=24
+
+      # Feature Flags
+      - NEXT_PUBLIC_ENABLE_ANALYTICS=true
+      - NEXT_PUBLIC_ENABLE_LOGGING=true
+      - NEXT_PUBLIC_ENABLE_DEVTOOLS=true
+
+      # Logging
+      - NEXT_PUBLIC_LOG_LEVEL=debug
+      - NEXT_PUBLIC_LOG_TO_CONSOLE=true
+
+      # UI Config
+      - NEXT_PUBLIC_ITEMS_PER_PAGE=20
+      - NEXT_PUBLIC_CHART_REFRESH_INTERVAL=30
+
+    networks:
+      - dygsom-network
+
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    volumes:
+      # Mount source code for hot reload in development (only in dev mode)
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+
+networks:
+  dygsom-network:
+    driver: bridge

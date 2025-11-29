@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* DYGSOM Brand Theme Variables */
+:root {
+  /* DYGSOM Primary Colors */
+  --dygsom-primary-50: #f0f9ff;
+  --dygsom-primary-100: #e0f2fe;
+  --dygsom-primary-200: #bae6fd;
+  --dygsom-primary-500: #0ea5e9;
+  --dygsom-primary-600: #0284c7;
+  --dygsom-primary-700: #0369a1;
+  
+  /* DYGSOM Brand Gradients */
+  --dygsom-gradient-primary: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  --dygsom-gradient-primary-dark: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  --dygsom-gradient-bg: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #f0f9ff 100%);
+}
+
+body {
+  @apply text-slate-900 min-h-screen;
+  background: var(--dygsom-gradient-bg);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* DYGSOM Brand Components */
+.dygsom-gradient-bg {
+  background: var(--dygsom-gradient-primary);
+}
+
+.dygsom-gradient-primary {
+  background: var(--dygsom-gradient-primary-dark);
+}
+
+.dygsom-card {
+  @apply bg-white/80 backdrop-blur-sm border border-blue-100/60 shadow-sm rounded-xl;
+}
+
+.dygsom-card-hover {
+  @apply hover:shadow-lg hover:border-blue-200/70 hover:bg-white/90 transition-all duration-300;
+}
+
+.dygsom-text-primary {
+  color: var(--dygsom-primary-600);
+}
+
+.dygsom-text-secondary {
+  color: var(--dygsom-primary-500);
+}
+
+.dygsom-btn-primary {
+  @apply text-white font-medium px-4 py-2 rounded-lg transition-all duration-200;
+  background: var(--dygsom-gradient-primary-dark);
+}
+
+.dygsom-btn-primary:hover {
+  @apply shadow-lg transform -translate-y-0.5;
+}
