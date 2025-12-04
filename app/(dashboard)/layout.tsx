@@ -21,10 +21,17 @@ export default function DashboardLayout({
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated (with delay to prevent race condition)
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/login');
+      // Add small delay to prevent race condition after login
+      const timer = setTimeout(() => {
+        if (!isAuthenticated) {
+          router.push('/login');
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
   }, [isLoading, isAuthenticated, router]);
 
