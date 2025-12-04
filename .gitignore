@@ -113,3 +113,10 @@ temp/
 *.njsproj
 *.sln
 *.sw?
+
+FIX_AUTH_REDIRECT_LOOP.md
+FRONTEND_COMPLETADO.md
+FRONTEND_PROGRESO.md
+LOGO_UPDATE_SUMMARY.md
+
+/cloud
