@@ -30,7 +30,9 @@ export default function DashboardLayout({
         // Double-check the authentication state
         const storedToken = localStorage.getItem('dygsom_auth_token');
         if (!storedToken && !isAuthenticated) {
-          console.log('No token found, redirecting to login');
+          console.log('Sesión expirada, redirigiendo al login');
+          // Store a message for the login page
+          sessionStorage.setItem('auth_message', 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
           router.push('/login');
         }
       }, 500);

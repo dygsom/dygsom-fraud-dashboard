@@ -26,6 +26,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [infoMessage, setInfoMessage] = useState('');
+
+  // Check for session expiration message
+  useEffect(() => {
+    const authMessage = sessionStorage.getItem('auth_message');
+    if (authMessage) {
+      setInfoMessage(authMessage);
+      sessionStorage.removeItem('auth_message');
+    }
+  }, []);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -40,12 +50,12 @@ export default function LoginPage() {
 
     // Validation
     if (!email || !password) {
-      setError('Please fill in all fields');
+      setError('Por favor, completa todos los campos para continuar');
       return;
     }
 
     if (!isValidEmail(email)) {
-      setError('Please enter a valid email address');
+      setError('Por favor, ingresa una dirección de correo válida');
       return;
     }
 
@@ -54,7 +64,21 @@ export default function LoginPage() {
       await login(email, password);
     } catch (err: any) {
       logger.error('Login error', err);
-      setError(err?.message || 'Invalid email or password');
+      
+      // User-friendly error messages
+      let userMessage = 'Credenciales incorrectas. Verifica tu email y contraseña.';
+      
+      if (err?.status_code === 401) {
+        userMessage = 'Email o contraseña incorrectos. Por favor, inténtalo de nuevo.';
+      } else if (err?.status_code === 429) {
+        userMessage = 'Demasiados intentos de login. Espera unos minutos antes de intentar nuevamente.';
+      } else if (err?.status_code >= 500) {
+        userMessage = 'Servicio temporalmente no disponible. Inténtalo de nuevo en unos minutos.';
+      } else if (!err?.status_code) {
+        userMessage = 'Error de conexión. Verifica tu internet e inténtalo de nuevo.';
+      }
+      
+      setError(userMessage);
     } finally {
       setIsLoading(false);
     }
@@ -112,6 +136,12 @@ export default function LoginPage() {
                 autoComplete="current-password"
               />
             </div>
+
+            {infoMessage && (
+              <div className="rounded-md bg-blue-50 p-3 mb-3">
+                <p className="text-sm text-blue-800">{infoMessage}</p>
+              </div>
+            )}
 
             {error && (
               <div className="rounded-md bg-red-50 p-3">
