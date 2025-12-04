@@ -21,15 +21,19 @@ export default function DashboardLayout({
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
-  // Redirect to login if not authenticated (with delay to prevent race condition)
+  // Redirect to login if not authenticated (improved logic)
   useEffect(() => {
+    // Only redirect if we're sure we're not loading and definitely not authenticated
     if (!isLoading && !isAuthenticated) {
-      // Add small delay to prevent race condition after login
+      // Add delay and double-check to prevent race conditions
       const timer = setTimeout(() => {
-        if (!isAuthenticated) {
+        // Double-check the authentication state
+        const storedToken = localStorage.getItem('dygsom_auth_token');
+        if (!storedToken && !isAuthenticated) {
+          console.log('No token found, redirecting to login');
           router.push('/login');
         }
-      }, 100);
+      }, 500);
 
       return () => clearTimeout(timer);
     }

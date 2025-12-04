@@ -98,8 +98,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
           email: response.user.email,
         });
 
-        // Redirect to dashboard
-        router.push(ROUTES.protected.dashboard);
+        // Force a small delay to ensure state is updated
+        setTimeout(() => {
+          router.push(ROUTES.protected.dashboard);
+        }, 100);
       } catch (error) {
         logger.error('Login failed', error);
         throw error;
@@ -178,10 +180,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [logout]);
 
+  // More reliable authentication check
+  const isAuthenticated = !!token && !!user;
+  
   const value: AuthContextType = {
     user,
     token,
-    isAuthenticated: !!user && !!token,
+    isAuthenticated,
     isLoading,
     login,
     signup,
