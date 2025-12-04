@@ -138,11 +138,25 @@ class ApiClient {
         // Handle specific error cases
         if (status === 401) {
           // Unauthorized - clear token and redirect to login
-          logger.auth('Unauthorized request - clearing token');
-          storage.removeItem(AUTH_CONFIG.tokenStorageKey);
+          const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+          
+          logger.auth('Unauthorized request - clearing auth', {
+            url,
+            method,
+            currentPath,
+            hasToken: !!storage.getItem<string>(AUTH_CONFIG.tokenStorageKey),
+          });
 
-          // Only redirect if we're in the browser
-          if (typeof window !== 'undefined') {
+          // Clear auth state
+          storage.removeItem(AUTH_CONFIG.tokenStorageKey);
+          
+          // Set message for login page
+          if (typeof window !== 'undefined' && sessionStorage) {
+            sessionStorage.setItem('auth_message', 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+          }
+
+          // Only redirect if we're not already on login page
+          if (typeof window !== 'undefined' && !currentPath.includes('/login')) {
             window.location.href = '/login';
           }
         }

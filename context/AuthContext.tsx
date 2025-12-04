@@ -53,8 +53,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         if (storedToken) {
           setToken(storedToken);
+          
+          // Give a small delay to ensure token is set in axios interceptor
+          await new Promise(resolve => setTimeout(resolve, 50));
 
-          // Fetch current user
+          // Try to fetch current user with stored token
           const currentUser = await authApi.getCurrentUser();
           setUser(currentUser);
 
@@ -63,11 +66,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
             email: currentUser.email,
           });
         }
-      } catch (error) {
-        logger.error('Failed to initialize auth', error);
-        // Clear invalid token from localStorage
-        storage.removeItem(AUTH_CONFIG.tokenStorageKey);
-        setToken(null);
+      } catch (error: any) {
+        logger.error('Failed to initialize auth', {
+          error: error.message,
+          status: error?.status_code,
+          hasToken: !!storage.getItem<string>(AUTH_CONFIG.tokenStorageKey),
+        });
+        
+        // Only clear token if it's actually invalid (401/403)
+        if (error?.status_code === 401 || error?.status_code === 403) {
+          logger.info('Clearing invalid token');
+          storage.removeItem(AUTH_CONFIG.tokenStorageKey);
+          setToken(null);
+          setUser(null);
+        }
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -88,20 +100,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const loginData: LoginRequest = { email, password };
         const response = await authApi.login(loginData);
 
-        // Store token in localStorage
+        // Store token in localStorage FIRST
         storage.setItem(AUTH_CONFIG.tokenStorageKey, response.access_token);
+        
+        // Set state with data from login response (don't make additional API call)
         setToken(response.access_token);
         setUser(response.user);
 
-        logger.auth('User logged in', {
+        logger.auth('User logged in successfully', {
           userId: response.user.id,
           email: response.user.email,
+          tokenLength: response.access_token.length,
         });
 
-        // Force a small delay to ensure state is updated
-        setTimeout(() => {
-          router.push(ROUTES.protected.dashboard);
-        }, 100);
+        // Redirect immediately since we already have user data
+        router.push(ROUTES.protected.dashboard);
       } catch (error) {
         logger.error('Login failed', error);
         throw error;
