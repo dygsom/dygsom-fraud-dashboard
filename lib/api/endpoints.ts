@@ -36,6 +36,13 @@ export const authApi = {
    * User login
    */
   login: (data: LoginRequest): Promise<TokenResponse> => {
+    // Temporary debug logging
+    console.log('DEBUG - Login attempt:', {
+      email: data.email,
+      passwordLength: data.password?.length,
+      endpoint: API_CONFIG.endpoints.auth.login,
+      baseURL: API_CONFIG.baseURL
+    });
     return apiClient.post<TokenResponse>(API_CONFIG.endpoints.auth.login, data);
   },
 

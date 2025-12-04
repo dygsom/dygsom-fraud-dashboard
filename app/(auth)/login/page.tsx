@@ -61,6 +61,15 @@ export default function LoginPage() {
 
     try {
       setIsLoading(true);
+      
+      // Debug logging
+      console.log('DEBUG - About to login with:', {
+        email: email,
+        emailLength: email.length,
+        passwordLength: password.length,
+        emailTrimmed: email.trim()
+      });
+      
       await login(email, password);
     } catch (err: any) {
       logger.error('Login error', err);
