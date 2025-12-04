@@ -129,7 +129,7 @@ docker build -t dygsom-dashboard:latest .
 docker run -d \
   --name dygsom-dashboard \
   -p 3001:3001 \
-  -e NEXT_PUBLIC_API_BASE_URL=https://api.dygsom.com \
+  -e NEXT_PUBLIC_API_BASE_URL=https://api.dygsom.pe \
   -e NODE_ENV=production \
   dygsom-dashboard:latest
 ```
@@ -138,7 +138,7 @@ docker run -d \
 
 ```bash
 # Crear .env.production
-NEXT_PUBLIC_API_BASE_URL=https://api.dygsom.com
+NEXT_PUBLIC_API_BASE_URL=https://api.dygsom.pe
 NEXT_PUBLIC_ENVIRONMENT=production
 NEXT_PUBLIC_LOG_LEVEL=error
 NEXT_PUBLIC_LOG_TO_CONSOLE=false
