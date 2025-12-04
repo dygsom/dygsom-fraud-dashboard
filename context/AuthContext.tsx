@@ -113,15 +113,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
           tokenLength: response.access_token.length,
         });
 
-        // Add delay to ensure state propagates before redirect
-        setTimeout(() => {
-          console.log('Redirecting to dashboard with auth state:', {
-            hasUser: !!response.user,
-            hasToken: !!response.access_token,
-            userId: response.user.id
-          });
-          router.push(ROUTES.protected.dashboard);
-        }, 200);
+        // Redirect immediately
+        console.log('Redirecting to dashboard with auth state:', {
+          hasUser: !!response.user,
+          hasToken: !!response.access_token,
+          userId: response.user.id
+        });
+        router.push(ROUTES.protected.dashboard);
       } catch (error) {
         logger.error('Login failed', error);
         throw error;

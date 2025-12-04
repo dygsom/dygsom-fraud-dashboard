@@ -21,31 +21,29 @@ export default function DashboardLayout({
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
-  // Redirect to login if not authenticated (improved logic)
+  // Redirect to login if not authenticated (fixed to prevent infinite loops)
   useEffect(() => {
     // Only redirect if we're sure we're not loading and definitely not authenticated
     if (!isLoading && !isAuthenticated) {
-      // Add longer delay and triple-check to prevent race conditions
+      console.log('Dashboard auth check - will redirect to login in 1 second');
+      
+      // Single redirect with shorter delay
       const timer = setTimeout(() => {
-        // Triple-check the authentication state
         const storedToken = localStorage.getItem('dygsom_auth_token');
-        console.log('Dashboard layout auth check:', {
+        console.log('Final auth check before redirect:', {
           isAuthenticated,
-          hasToken: !!storedToken,
-          currentPath: window.location.pathname
+          hasToken: !!storedToken
         });
         
-        // Only redirect if we're absolutely sure there's no authentication
         if (!storedToken && !isAuthenticated) {
-          console.log('No hay autenticación válida, redirigiendo al login');
           sessionStorage.setItem('auth_message', 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
           router.push('/login');
         }
-      }, 2000);
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated]); // Removed router from dependencies to prevent loops
 
   // Show loading state
   if (isLoading) {
