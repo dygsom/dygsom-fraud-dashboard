@@ -25,17 +25,23 @@ export default function DashboardLayout({
   useEffect(() => {
     // Only redirect if we're sure we're not loading and definitely not authenticated
     if (!isLoading && !isAuthenticated) {
-      // Add delay and double-check to prevent race conditions
+      // Add longer delay and triple-check to prevent race conditions
       const timer = setTimeout(() => {
-        // Double-check the authentication state
+        // Triple-check the authentication state
         const storedToken = localStorage.getItem('dygsom_auth_token');
+        console.log('Dashboard layout auth check:', {
+          isAuthenticated,
+          hasToken: !!storedToken,
+          currentPath: window.location.pathname
+        });
+        
+        // Only redirect if we're absolutely sure there's no authentication
         if (!storedToken && !isAuthenticated) {
-          console.log('Sesión expirada, redirigiendo al login');
-          // Store a message for the login page
+          console.log('No hay autenticación válida, redirigiendo al login');
           sessionStorage.setItem('auth_message', 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
           router.push('/login');
         }
-      }, 500);
+      }, 2000);
 
       return () => clearTimeout(timer);
     }

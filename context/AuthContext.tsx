@@ -103,7 +103,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Store token in localStorage FIRST
         storage.setItem(AUTH_CONFIG.tokenStorageKey, response.access_token);
         
-        // Set state with data from login response (don't make additional API call)
+        // Set state with data from login response
         setToken(response.access_token);
         setUser(response.user);
 
@@ -113,8 +113,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
           tokenLength: response.access_token.length,
         });
 
-        // Redirect immediately since we already have user data
-        router.push(ROUTES.protected.dashboard);
+        // Add delay to ensure state propagates before redirect
+        setTimeout(() => {
+          console.log('Redirecting to dashboard with auth state:', {
+            hasUser: !!response.user,
+            hasToken: !!response.access_token,
+            userId: response.user.id
+          });
+          router.push(ROUTES.protected.dashboard);
+        }, 200);
       } catch (error) {
         logger.error('Login failed', error);
         throw error;
