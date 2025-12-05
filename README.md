@@ -2,10 +2,40 @@
 
 **Version:** 1.0.0  
 **Framework:** Next.js 14 + TypeScript  
-**Status:** ✅ Producción Lista  
+**Status:** ✅ Operativo - Desarrollo Local  
 **Repository:** https://github.com/dygsom/dygsom-fraud-dashboard  
+**Última actualización:** 5 de diciembre de 2025
 
-Professional fraud detection dashboard for DYGSOM API with comprehensive branding and optimized components.
+Dashboard web profesional para el sistema de detección de fraude DYGSOM. Interface de usuario moderna y responsiva que se conecta con la API de fraude para proporcionar monitoreo en tiempo real, gestión de transacciones y análisis de riesgo.
+
+## 🚀 Quick Start
+
+```bash
+# Clonar repositorio
+git clone https://github.com/dygsom/dygsom-fraud-dashboard.git
+cd dygsom-fraud-dashboard
+
+# Instalar dependencias
+npm install
+
+# Configurar entorno (copiar y editar)
+cp .env.example .env.local
+
+# Levantar API (requerida - ver documentación en dygsom-fraud-api)
+cd ../dygsom-fraud-api
+docker compose up -d
+
+# Levantar dashboard
+cd ../dygsom-fraud-dashboard  
+npm run dev -- --port 3003
+
+# Acceder dashboard: http://localhost:3003
+# API docs: http://localhost:3000/docs
+```
+
+**Credenciales de desarrollo:**
+- Email: `admin@dygsom.com`
+- Password: `SecurePass123`
 
 ---
 
@@ -17,18 +47,18 @@ Professional fraud detection dashboard for DYGSOM API with comprehensive brandin
 - **TailwindCSS 4.1** - Utility-first CSS
 - **React 18.3** - UI library
 
-### Librerías Principales
-- **axios 1.13** - HTTP client con interceptors
-- **zod 4.1** - Schema validation
-- **react-hook-form 7.66** - Form management
-- **recharts 3.5** - Charts library
-- **date-fns 4.1** - Date utilities
-- **lucide-react 0.555** - Icon library
+### Librerías Principales (Optimizadas)
+- **axios 1.7** - HTTP client con interceptors
+- **tailwindcss 3.4** - Utility-first CSS framework  
+- **@tailwindcss/forms** - Form styling
+- **class-variance-authority** - Conditional styling
+- **clsx** - Class name utility
 
-### DevTools
-- **ESLint** - Code linting
-- **TypeScript** - Static type checking
+### Herramientas de Desarrollo
+- **ESLint 8** - Code linting
+- **TypeScript 5** - Static type checking
 - **PostCSS** - CSS processing
+- **Docker** - Containerización
 
 ---
 
@@ -47,46 +77,74 @@ dygsom-fraud-dashboard/
 │   ├── dashboard/        # Dashboard-specific
 │   └── forms/            # Form components
 ├── lib/                  # Core libraries
-│   ├── api/             # API client & endpoints
+│   ├── api/             # API client & endpoints  
 │   ├── utils/           # Utility functions
-│   ├── logger.ts        # Logging system
-│   └── storage.ts       # Secure storage
-├── config/              # Configuration
-│   ├── constants.ts     # App constants
-│   ├── env.ts          # Env validation
-│   └── routes.ts       # Route definitions
-├── types/               # TypeScript types
+│   ├── logger.ts        # Sistema de logging
+│   └── storage.ts       # Almacenamiento seguro
+├── config/              # Configuración
+│   ├── constants.ts     # Constantes de la app
+│   └── routes.ts        # Definición de rutas
+├── types/               # Definiciones TypeScript
 ├── hooks/               # Custom React hooks
-├── context/             # React Context
-└── middleware.ts        # Route protection
+├── context/             # React Context (Auth)
+├── cleanup-artifacts/   # Archivos eliminados
+└── middleware.ts        # Protección de rutas
 ```
 
 ---
 
-## Instalación y Setup
+## 🛠️ Instalación y Setup
 
-### 1. Instalar Dependencias
+### Prerrequisitos
+- **Node.js** 20.x o superior
+- **Docker** y Docker Compose (para la API)
+- **Git** para control de versiones
+
+### 1. Clonar y Configurar
 
 ```bash
+# Clonar repositorio  
+git clone https://github.com/dygsom/dygsom-fraud-dashboard.git
 cd dygsom-fraud-dashboard
+
+# Instalar dependencias
 npm install
+
+# Verificar configuración
+cat .env.local
 ```
 
-### 2. Configurar Variables de Entorno
+### 2. Levantar API de Backend
+
+> **Nota:** La API tiene su propia documentación completa en el repositorio `dygsom-fraud-api`
 
 ```bash
-# Ya está creado: .env.local
-# Verificar que apunte al backend correcto:
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+# Ir al proyecto API (repositorio separado)
+cd ../dygsom-fraud-api
+
+# Levantar servicios con Docker
+docker compose up -d
+
+# Verificar que funciona
+# Ver documentación completa en dygsom-fraud-api/README.md
 ```
 
-### 3. Ejecutar en Desarrollo
+### 3. Ejecutar Dashboard
 
 ```bash
+cd ../dygsom-fraud-dashboard
+
+# Desarrollo (puerto por defecto 3001)
 npm run dev
+
+# O especificar puerto
+npm run dev -- --port 3003
 ```
 
-Dashboard disponible en: **http://localhost:3001**
+**URLs importantes:**
+- **Dashboard:** http://localhost:3001 (o puerto especificado)
+- **API:** http://localhost:3000
+- **API Docs:** http://localhost:3000/docs
 
 ---
 
@@ -111,35 +169,31 @@ npm run type-check
 
 ---
 
-## Configuración Completada
+## 🏗️ Arquitectura y Estado
 
-### ✅ Base del Proyecto
-- [x] Next.js 14 instalado y configurado
-- [x] TypeScript configurado con modo estricto
-- [x] TailwindCSS configurado con tema profesional
-- [x] ESLint configurado
-- [x] Variables de entorno definidas
-- [x] .gitignore configurado
-- [x] Security headers configurados
+### Frontend Dashboard (Este Proyecto)
+- ✅ **Interface Web** - Componentes React modernos
+- ✅ **Autenticación** - Login/registro con JWT
+- ✅ **Navegación** - Sidebar y header profesionales  
+- ✅ **Dashboard** - Métricas y visualizaciones
+- ✅ **Responsive Design** - Diseño adaptativo
+- 🔄 **Analytics** - Reportes avanzados (en desarrollo)
 
-### ✅ Dependencias Instaladas
-- [x] Axios (HTTP client)
-- [x] Zod (Validación)
-- [x] React Hook Form (Formularios)
-- [x] Recharts (Gráficos)
-- [x] Date-fns (Fechas)
-- [x] Lucide React (Iconos)
-- [x] TailwindCSS Animate
+### Backend API (Proyecto Separado)
+> **Ver:** `dygsom-fraud-api` para documentación completa
 
-### ✅ Estructura de Carpetas
-- [x] app/ (App Router)
-- [x] components/ (UI, layout, dashboard, forms)
-- [x] lib/ (api, utils)
-- [x] config/
-- [x] types/
-- [x] hooks/
+- ✅ **FastAPI** - REST API con documentación automática
+- ✅ **PostgreSQL** - Base de datos principal
+- ✅ **Redis** - Cache y sesiones
+- ✅ **Docker** - Containerización completa
+- ✅ **ML Pipeline** - Detección de fraude con IA
+- ✅ **Monitoreo** - Prometheus + Grafana
 
-### ✅ Control de Versiones
+### Integración
+- ✅ **HTTP Client** - Comunicación segura API ↔ Dashboard
+- ✅ **Authentication** - JWT tokens compartidos
+- ✅ **Error Handling** - Manejo centralizado de errores
+- ✅ **Logging** - Sistema de logs unificado
 - [x] Repositorio Git inicializado
 - [x] .gitignore optimizado para Next.js
 - [x] Commit inicial completado
@@ -149,153 +203,63 @@ npm run type-check
 
 ---
 
-## Próximos Pasos de Implementación
+## ✅ Estado Actual (Diciembre 2025)
 
-### Fase 1: Configuración Core (1-2 horas)
+### Componentes Implementados
+- [x] **Sidebar** - Navegación lateral completa
+- [x] **Header** - Barra superior con branding  
+- [x] **AuthContext** - Gestión de autenticación
+- [x] **Layout** - Estructura principal del dashboard
+- [x] **Login/Signup** - Formularios de autenticación
+- [x] **Middleware** - Protección de rutas
+- [x] **API Client** - Cliente HTTP optimizado
 
-**1. Config y Constantes** (`config/`)
-```typescript
-// config/constants.ts
-export const APP_CONFIG = {
-  name: 'DYGSOM Fraud Dashboard',
-  version: '1.0.0',
-  api: {
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-    timeout: 30000
-  }
-}
+### Funcionalidades
+- [x] **Autenticación JWT** completa
+- [x] **Navegación lateral** funcional
+---
 
-// config/routes.ts
-export const ROUTES = {
-  public: {
-    login: '/login',
-    signup: '/signup'
-  },
-  protected: {
-    dashboard: '/',
-    transactions: '/transactions',
-    apiKeys: '/api-keys'
-  }
-}
-```
+## 🎯 Roadmap de Desarrollo
 
-**2. Tipos TypeScript** (`types/`)
-```typescript
-// types/auth.ts
-export interface User {
-  id: string
-  email: string
-  name: string
-  role: 'user' | 'admin'
-  organization: Organization
-}
+### Próximas Funcionalidades
 
-// types/api.ts
-export interface ApiResponse<T> {
-  data: T
-  error?: ApiError
-}
-```
+#### Dashboard Analytics 📊
+- Gráficos de tendencias de fraude
+- Métricas KPI en tiempo real
+- Reportes exportables (PDF/Excel)
+- Dashboards personalizables por usuario
 
-**3. Utilidades** (`lib/utils/`)
-```typescript
-// lib/utils/cn.ts
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+#### Gestión Completa de Transacciones 💳
+- Lista paginada con filtros avanzados
+- Vista detallada por transacción
+- Historial y audit trail
+- Búsqueda por múltiples criterios
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-```
+#### Sistema de Alertas 🚨
+- Notificaciones push en tiempo real
+- Configuración de umbrales personalizables
+- Integración email/SMS
+- Centro de notificaciones
 
-### Fase 2: API Client y Logging (2 horas)
+#### Tests y Calidad 🧪
+- Tests unitarios (>80% coverage)
+- Tests de integración
+- Tests E2E con Playwright
+- CI/CD pipeline automatizado
 
-**1. API Client** (`lib/api/client.ts`)
-```typescript
-import axios from 'axios'
+---
 
-export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
+## 📚 Documentación Relacionada
 
-// Request interceptor (add token)
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('dygsom_auth_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
+### Proyectos Relacionados
+- **[dygsom-fraud-api](../dygsom-fraud-api/README.md)** - Backend API con FastAPI
+- **[dygsom-landing-page](../dygsom-landing-page/README.md)** - Landing page corporativa
 
-// Response interceptor (handle errors)
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Redirect to login
-      window.location.href = '/login'
-    }
-    return Promise.reject(error)
-  }
-)
-```
-
-**2. Logger** (`lib/logger.ts`)
-```typescript
-type LogLevel = 'debug' | 'info' | 'warn' | 'error'
-
-class Logger {
-  private level: LogLevel = 'info'
-
-  debug(message: string, ...args: any[]) {
-    if (this.shouldLog('debug')) {
-      console.debug(`[DEBUG] ${message}`, ...args)
-    }
-  }
-
-  error(message: string, error?: Error, ...args: any[]) {
-    if (this.shouldLog('error')) {
-      console.error(`[ERROR] ${message}`, error, ...args)
-    }
-  }
-}
-
-export const logger = new Logger()
-```
-
-### Fase 3: Autenticación (2-3 horas)
-
-**1. Auth Context** (`context/AuthContext.tsx`)
-```typescript
-'use client'
-
-import { createContext, useContext, useState } from 'react'
-
-interface AuthContextType {
-  user: User | null
-  login: (email: string, password: string) => Promise<void>
-  logout: () => void
-  isAuthenticated: boolean
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-
-  const login = async (email: string, password: string) => {
-    const response = await apiClient.post('/api/v1/auth/login', {
-      email,
-      password
-    })
-
-    localStorage.setItem('dygsom_auth_token', response.data.access_token)
-    setUser(response.data.user)
-  }
+### Enlaces Útiles
+- **[STATUS_2025-12-05.md](./STATUS_2025-12-05.md)** - Estado detallado del proyecto
+- **[Next.js Documentation](https://nextjs.org/docs)** - Framework documentation
+- **[TypeScript Handbook](https://www.typescriptlang.org/docs/)** - TypeScript guide
+- **[TailwindCSS](https://tailwindcss.com/docs)** - CSS framework
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
@@ -469,28 +433,54 @@ git push origin feature/nueva-funcionalidad
 
 ---
 
-## Documentación Adicional
+## 📚 Documentación y Referencias
 
-- **Repositorio:** https://github.com/dygsom/dygsom-fraud-dashboard
-- **Backend API:** Ver `../dygsom-fraud-api/docs/`
-- **Progreso:** Ver `FRONTEND_PROGRESO.md`
-- **Branding:** Ver `BRANDING_IMPLEMENTATION.md`
-- **Next.js:** https://nextjs.org/docs
-- **TailwindCSS:** https://tailwindcss.com/docs
+### Documentos del Proyecto
+- **Estado Actual:** `STATUS_2025-12-05.md`
+- **Backend API:** `../dygsom-fraud-api/README.md`  
+- **API Docs:** http://localhost:3000/docs
+
+### Referencias Técnicas
+- **Next.js 14:** https://nextjs.org/docs
+- **TypeScript:** https://www.typescriptlang.org/docs
+- **Tailwind CSS:** https://tailwindcss.com/docs
+- **Docker:** https://docs.docker.com
 
 ---
 
-## Soporte
+## 🔧 Comandos Útiles
+
+### Desarrollo
+```bash
+# Desarrollo normal
+npm run dev
+
+# Con puerto específico  
+npm run dev -- --port 3003
+
+# Build de producción
+npm run build
+```
+
+### API Backend
+```bash
+cd ../dygsom-fraud-api
+docker compose up -d
+docker exec dygsom-fraud-api python check_users.py
+```
+
+---
+
+## 📞 Soporte
 
 **Equipo:** DYGSOM Engineering  
 **Repositorio:** https://github.com/dygsom/dygsom-fraud-dashboard  
-**License:** Proprietary  
+**Estado:** ✅ **Operativo** (Diciembre 2025)  
+**Credenciales:** admin@dygsom.com / SecurePass123
 
 ---
 
-**Estado:** ✅ **Producción Lista** - Dashboard completo con branding DYGSOM  
-**Deployment:** Listo para despliegue en producción  
-**Características:** Completas - Auth, Dashboard, Analytics, API Keys, Transacciones
+*Última actualización: 5 de diciembre de 2025*
 #   F i x   A P I   e n d p o i n t   f o r   p r o d u c t i o n   d e p l o y m e n t   1 2 / 0 4 / 2 0 2 5   0 9 : 4 9 : 1 2 
  
  

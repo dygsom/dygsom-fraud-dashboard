@@ -45,3 +45,7 @@ FRONTEND_PROGRESO.md
 
 # OS
 Thumbs.db
+
+# Cleanup artifacts - excluded from production builds
+cleanup-artifacts
+deleteme-at-finish

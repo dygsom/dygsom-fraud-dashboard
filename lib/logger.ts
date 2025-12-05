@@ -8,7 +8,9 @@
  */
 
 import { LOG_CONFIG } from '@/config/constants';
-import { isDevelopment } from '@/config/env';
+
+// Simple development check
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -77,7 +79,7 @@ class Logger {
         }
       }
       
-      return JSON.stringify(formatted, null, isDevelopment() ? 2 : undefined);
+      return JSON.stringify(formatted, null, isDevelopment ? 2 : undefined);
     } catch (error) {
       return `[Context Error: ${error}]`;
     }
@@ -125,7 +127,7 @@ class Logger {
     // TODO: Implement external logging service integration
     // Examples: Sentry, LogRocket, Datadog, etc.
     // Only send in production
-    if (!isDevelopment()) {
+    if (!isDevelopment) {
       // External service integration here
     }
   }

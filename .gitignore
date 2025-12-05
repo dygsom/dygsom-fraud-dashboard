@@ -48,6 +48,10 @@ next-env.d.ts
 # OS
 Thumbs.db
 
+# Cleanup artifacts (temporary files moved during refactoring)
+cleanup-artifacts/
+/cleanup-artifacts
+
 # Logs
 logs
 *.log
@@ -114,10 +118,4 @@ temp/
 *.sln
 *.sw?
 
-FIX_AUTH_REDIRECT_LOOP.md
-FRONTEND_COMPLETADO.md
-FRONTEND_PROGRESO.md
-LOGO_UPDATE_SUMMARY.md
 
-/cloud
-/deleteme-at-finish

@@ -1,10 +1,8 @@
 /**
  * Formatting Utilities
  *
- * Functions for formatting data for display
+ * Functions for formatting data for display using native JavaScript APIs
  */
-
-import { format, formatDistanceToNow, parseISO } from 'date-fns';
 
 /**
  * Format currency amount
@@ -54,36 +52,54 @@ export function formatPercentage(value: number | null | undefined, decimals: num
 }
 
 /**
- * Format date to readable string
- *
+ * Format date to readable string using native Date methods
  * @param date - Date string or Date object
- * @param formatStr - Format string (default: 'PPP')
- * @returns Formatted date string
+ * @returns Formatted date string (DD/MM/YYYY)
  */
-export function formatDate(date: string | Date, formatStr: string = 'PPP'): string {
-  const dateObj = typeof date === 'string' ? parseISO(date) : date;
-  return format(dateObj, formatStr);
+export function formatDate(date: string | Date): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  return dateObj.toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
 }
 
 /**
- * Format date to relative time (e.g., "2 hours ago")
- *
+ * Format date to relative time using native calculations
  * @param date - Date string or Date object
- * @returns Relative time string
+ * @returns Relative time string (e.g., "hace 2 horas")
  */
 export function formatRelativeTime(date: string | Date): string {
-  const dateObj = typeof date === 'string' ? parseISO(date) : date;
-  return formatDistanceToNow(dateObj, { addSuffix: true });
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  const now = new Date()
+  const diffMs = now.getTime() - dateObj.getTime()
+  const diffMinutes = Math.floor(diffMs / (1000 * 60))
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+  if (diffMinutes < 1) return 'hace un momento'
+  if (diffMinutes < 60) return `hace ${diffMinutes} minuto${diffMinutes !== 1 ? 's' : ''}`
+  if (diffHours < 24) return `hace ${diffHours} hora${diffHours !== 1 ? 's' : ''}`
+  if (diffDays < 30) return `hace ${diffDays} día${diffDays !== 1 ? 's' : ''}`
+  
+  return dateObj.toLocaleDateString('es-ES')
 }
 
 /**
- * Format date and time
- *
+ * Format date and time using native Date methods
  * @param date - Date string or Date object
- * @returns Formatted date and time string
+ * @returns Formatted date and time string (DD/MM/YYYY HH:MM)
  */
 export function formatDateTime(date: string | Date): string {
-  return formatDate(date, 'PPp');
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  return dateObj.toLocaleString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 /**

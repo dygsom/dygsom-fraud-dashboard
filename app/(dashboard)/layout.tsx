@@ -91,11 +91,14 @@ export default function DashboardLayout({
   
   try {
     return (
-      <div className="flex h-screen flex-col">
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
         <Header />
-        <div className="flex flex-1 overflow-hidden">
+        
+        {/* Main Layout with Sidebar */}
+        <div className="flex">
           <Sidebar />
-          <main className="flex-1 overflow-y-auto bg-gray-50 p-6">{children}</main>
+          <main className="flex-1 p-6">{children}</main>
         </div>
       </div>
     );

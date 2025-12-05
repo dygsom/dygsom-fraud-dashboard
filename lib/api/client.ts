@@ -14,8 +14,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosError, InternalAxiosRequ
 import { API_CONFIG, AUTH_CONFIG } from '@/config/constants';
 import { logger } from '@/lib/logger';
 import { storage } from '@/lib/storage';
-import { withRetry, DEFAULT_RETRY_OPTIONS } from '@/lib/utils/retry';
-import { performanceMonitor } from '@/lib/utils/performance';
+// Retry and performance utilities removed - using simpler approach
 import type { ApiError } from '@/types';
 
 /**
@@ -57,13 +56,7 @@ class ApiClient {
         // Add request start time for duration calculation
         (config as any).metadata = { startTime, requestId };
 
-        // Start performance monitoring
-        performanceMonitor.start(`API_${requestId}`, {
-          method: config.method?.toUpperCase(),
-          url: config.url,
-          hasParams: !!config.params,
-          hasData: !!config.data,
-        });
+        // Performance monitoring removed during cleanup
 
         // Add authentication token with detailed logging
         const token = storage.getItem<string>(AUTH_CONFIG.tokenStorageKey);
@@ -109,18 +102,11 @@ class ApiClient {
     // Response interceptor
     this.client.interceptors.response.use(
       (response) => {
-        // Calculate request duration and end performance monitoring
+        // Calculate request duration
         const metadata = (response.config as any).metadata;
         const duration = Date.now() - (metadata?.startTime || Date.now());
-        const requestId = metadata?.requestId;
 
-        if (requestId) {
-          performanceMonitor.end(`API_${requestId}`, {
-            status: response.status,
-            responseSize: JSON.stringify(response.data).length,
-            success: true,
-          });
-        }
+        // Performance monitoring removed during cleanup
 
         // Log response
         logger.apiResponse(
@@ -136,17 +122,7 @@ class ApiClient {
         const status = error.response?.status || 0;
         const method = error.config?.method?.toUpperCase() || 'UNKNOWN';
         const url = error.config?.url || 'UNKNOWN';
-        const metadata = (error.config as any)?.metadata;
-        const requestId = metadata?.requestId;
-
-        // End performance monitoring for failed request
-        if (requestId) {
-          performanceMonitor.end(`API_${requestId}`, {
-            status,
-            success: false,
-            errorMessage: error.message,
-          });
-        }
+        // Performance monitoring removed during cleanup
 
         // Log error
         logger.apiError(method, url, error);
@@ -220,25 +196,13 @@ class ApiClient {
       timestamp: new Date().toISOString()
     });
     
-    return withRetry(async () => {
-      const response = await this.client.get<T>(url, config);
-      console.log('✅ API GET SUCCESS:', {
-        url,
-        status: response.status,
-        hasData: !!response.data
-      });
-      return response.data;
-    }, {
-      ...DEFAULT_RETRY_OPTIONS,
-      retryCondition: (error) => {
-        // Don't retry authentication errors
-        if (error.status_code === 401 || error.status_code === 403) {
-          return false;
-        }
-        // Retry network errors and server errors
-        return !error.status_code || (error.status_code >= 500 && error.status_code < 600);
-      },
+    const response = await this.client.get<T>(url, config);
+    console.log('✅ API GET SUCCESS:', {
+      url,
+      status: response.status,
+      hasData: !!response.data
     });
+    return response.data;
   }
 
   /**
@@ -249,20 +213,8 @@ class ApiClient {
     data?: unknown,
     config?: AxiosRequestConfig
   ): Promise<T> {
-    return withRetry(async () => {
-      const response = await this.client.post<T>(url, data, config);
-      return response.data;
-    }, {
-      ...DEFAULT_RETRY_OPTIONS,
-      retryCondition: (error) => {
-        // Don't retry authentication errors or client errors
-        if (error.status_code >= 400 && error.status_code < 500) {
-          return false;
-        }
-        // Retry network errors and server errors
-        return !error.status_code || (error.status_code >= 500 && error.status_code < 600);
-      },
-    });
+    const response = await this.client.post<T>(url, data, config);
+    return response.data;
   }
 
   /**
