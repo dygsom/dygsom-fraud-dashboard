@@ -48,11 +48,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   useEffect(() => {
     const initAuth = async () => {
+      console.log('🚀 INITIALIZING AUTH CONTEXT');
       try {
         const storedToken = storage.getItem<string>(AUTH_CONFIG.tokenStorageKey);
+        console.log('🔑 STORED TOKEN CHECK:', {
+          hasToken: !!storedToken,
+          tokenLength: storedToken?.length || 0,
+          tokenStart: storedToken ? storedToken.substring(0, 10) + '...' : 'none'
+        });
 
         if (storedToken) {
           setToken(storedToken);
+          console.log('📝 TOKEN SET IN STATE');
           
           // Give a small delay to ensure token is set in axios interceptor
           await new Promise(resolve => setTimeout(resolve, 50));
@@ -114,10 +121,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         });
 
         // Redirect immediately
-        console.log('Redirecting to dashboard with auth state:', {
+        console.log('🎆 LOGIN SUCCESS - REDIRECTING TO DASHBOARD:', {
           hasUser: !!response.user,
           hasToken: !!response.access_token,
-          userId: response.user.id
+          userId: response.user.id,
+          userEmail: response.user.email,
+          dashboardRoute: ROUTES.protected.dashboard
         });
         router.push(ROUTES.protected.dashboard);
       } catch (error) {
