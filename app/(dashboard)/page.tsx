@@ -157,92 +157,146 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Header with status indicator */}
-      <div className="bg-white shadow rounded-lg p-6">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg rounded-xl p-8 text-white">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Panel de Control DYGSOM</h1>
-            <p className="text-gray-600">Sistema de Detección de Fraude</p>
-            {lastUpdated && (
-              <p className="text-sm text-gray-500 mt-1">
-                Última actualización: {lastUpdated.toLocaleTimeString()}
-                {isRetrying && <span className="ml-2 text-blue-600">• Actualizando...</span>}
-              </p>
-            )}
+          <div className="flex items-center space-x-6">
+            <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.018.118l2.973-2.973a1.998 1.998 0 00-2.827-2.828l-8.018 8.018a1.998 1.998 0 102.827 2.827L16 9.118z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold mb-2">Panel de Control DYGSOM</h1>
+              <p className="text-blue-100 text-lg">🛡️ Sistema de Detección de Fraude v1.0</p>
+              {lastUpdated && (
+                <div className="flex items-center mt-2 text-blue-100 text-sm">
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Última actualización: {lastUpdated.toLocaleTimeString('es-ES')}
+                  {isRetrying && (
+                    <span className="ml-3 flex items-center animate-pulse">
+                      <div className="w-2 h-2 bg-yellow-300 rounded-full mr-1 animate-bounce"></div>
+                      Actualizando...
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-            error ? 'bg-red-500' : 'bg-green-500'
+          <div className={`flex items-center space-x-3 px-6 py-3 rounded-lg backdrop-blur ${
+            error ? 'bg-red-500/20 border border-red-300' : 'bg-green-500/20 border border-green-300'
           }`}>
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                d={error ? "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" : "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"} />
-            </svg>
+            <div className={`w-3 h-3 rounded-full animate-pulse ${
+              error ? 'bg-red-400' : 'bg-green-400'
+            }`}></div>
+            <div>
+              <div className="text-sm font-medium">
+                {error ? '⚠️ Sistema con Errores' : '✅ Sistema Activo'}
+              </div>
+              <div className="text-xs opacity-80">
+                {error ? 'Verificar conexión' : 'API funcionando correctamente'}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Analytics Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-white shadow">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Total de Transacciones
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              {formatNumber(getAnalyticsValue(analytics?.total_transactions, 0))}
+        <Card className="bg-white shadow-lg border-0 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-blue-100 p-3 rounded-lg">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                </svg>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-blue-600">
+                  {formatNumber(getAnalyticsValue(analytics?.total_transactions, 0))}
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-gray-500">
-              Últimos {DASHBOARD_CONFIG.ANALYTICS_DAYS} días
-            </p>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">📊 Total de Transacciones</h3>
+              <p className="text-sm text-gray-500">
+                Últimos {DASHBOARD_CONFIG.ANALYTICS_DAYS} días
+              </p>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white shadow">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Monto Total
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {formatCurrency(getAnalyticsValue(analytics?.total_amount, 0))}
+        <Card className="bg-white shadow-lg border-0 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-green-100 p-3 rounded-lg">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-green-600">
+                  {formatCurrency(getAnalyticsValue(analytics?.total_amount, 0))}
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-gray-500">
-              Últimos {DASHBOARD_CONFIG.ANALYTICS_DAYS} días
-            </p>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">💰 Monto Total</h3>
+              <p className="text-sm text-gray-500">
+                Últimos {DASHBOARD_CONFIG.ANALYTICS_DAYS} días
+              </p>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white shadow">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Transacciones Fraudulentas
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {formatNumber(getAnalyticsValue(analytics?.fraud_detected, 0))}
+        <Card className="bg-white shadow-lg border-0 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-red-100 p-3 rounded-lg">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-red-600">
+                  {formatNumber(getAnalyticsValue(analytics?.fraud_detected, 0))}
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-gray-500">
-              {formatPercentage(getAnalyticsValue(analytics?.fraud_percentage, 0))} del total
-            </p>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">🚨 Fraudes Detectados</h3>
+              <p className="text-sm text-red-600 font-medium">
+                {formatPercentage(getAnalyticsValue(analytics?.fraud_percentage, 0))} del total
+              </p>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white shadow">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Estado del Sistema
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${error ? 'text-red-600' : 'text-green-600'}`}>
-              {error ? 'Error' : 'Operativo'}
+        <Card className="bg-white shadow-lg border-0 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-3 rounded-lg ${error ? 'bg-red-100' : 'bg-green-100'}`}>
+                <svg className={`w-6 h-6 ${error ? 'text-red-600' : 'text-green-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                    d={error ? "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" : "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"} />
+                </svg>
+              </div>
+              <div className="text-right">
+                <div className={`text-2xl font-bold ${error ? 'text-red-600' : 'text-green-600'}`}>
+                  {error ? '❌ Error' : '✅ Online'}
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-gray-500">
-              {error ? 'Verificar conexión' : 'API funcionando correctamente'}
-            </p>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">🔧 Estado del Sistema</h3>
+              <p className={`text-sm font-medium ${
+                error ? 'text-red-600' : 'text-green-600'
+              }`}>
+                {error ? 'Verificar conexión' : 'Funcionando correctamente'}
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -318,41 +372,61 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="bg-white shadow">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900">
-            Acciones Rápidas
-          </CardTitle>
-          <CardDescription>
-            Herramientas de administración del sistema
-          </CardDescription>
+      <Card className="bg-white shadow-lg border-0">
+        <CardHeader className="pb-6">
+          <div className="flex items-center space-x-3">
+            <div className="bg-gray-100 p-2 rounded-lg">
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div>
+              <CardTitle className="text-xl font-bold text-gray-900">
+                ⚡ Acciones Rápidas
+              </CardTitle>
+              <CardDescription className="text-gray-600">
+                Herramientas de administración del sistema
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
               onClick={() => fetchAnalytics(true)}
               disabled={isRetrying}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="group relative px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:hover:transform-none"
             >
-              <svg className={`w-4 h-4 ${isRetrying ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              {isRetrying ? 'Actualizando...' : 'Actualizar Datos'}
+              <div className="flex items-center justify-center space-x-3">
+                <svg className={`w-5 h-5 ${isRetrying ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span className="font-semibold">
+                  {isRetrying ? 'Actualizando...' : '🔄 Actualizar Datos'}
+                </span>
+              </div>
+              {isRetrying && (
+                <div className="absolute inset-0 bg-blue-700/20 rounded-lg animate-pulse"></div>
+              )}
             </button>
             
-            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Exportar Reporte
+            <button className="group px-6 py-4 border-2 border-gray-200 text-gray-700 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-1">
+              <div className="flex items-center justify-center space-x-3">
+                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="font-semibold">📊 Exportar Reporte</span>
+              </div>
             </button>
             
-            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              Configuración
+            <button className="group px-6 py-4 border-2 border-gray-200 text-gray-700 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-1">
+              <div className="flex items-center justify-center space-x-3">
+                <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="font-semibold">⚙️ Configuración</span>
+              </div>
             </button>
           </div>
         </CardContent>
