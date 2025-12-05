@@ -13,7 +13,13 @@ import { format, formatDistanceToNow, parseISO } from 'date-fns';
  * @param currency - Currency code (default: USD)
  * @returns Formatted currency string
  */
-export function formatCurrency(amount: number, currency: string = 'USD'): string {
+export function formatCurrency(amount: number | null | undefined, currency: string = 'USD'): string {
+  if (amount === null || amount === undefined || isNaN(amount)) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+    }).format(0);
+  }
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
@@ -26,7 +32,10 @@ export function formatCurrency(amount: number, currency: string = 'USD'): string
  * @param value - Number to format
  * @returns Formatted number string
  */
-export function formatNumber(value: number): string {
+export function formatNumber(value: number | null | undefined): string {
+  if (value === null || value === undefined || isNaN(value)) {
+    return '0';
+  }
   return new Intl.NumberFormat('en-US').format(value);
 }
 
@@ -37,7 +46,10 @@ export function formatNumber(value: number): string {
  * @param decimals - Number of decimal places (default: 1)
  * @returns Formatted percentage string
  */
-export function formatPercentage(value: number, decimals: number = 1): string {
+export function formatPercentage(value: number | null | undefined, decimals: number = 1): string {
+  if (value === null || value === undefined || isNaN(value)) {
+    return '0.0%';
+  }
   return `${(value * 100).toFixed(decimals)}%`;
 }
 
@@ -103,6 +115,9 @@ export function capitalize(str: string): string {
  * @param score - Risk score
  * @returns Formatted score string
  */
-export function formatRiskScore(score: number): string {
+export function formatRiskScore(score: number | null | undefined): string {
+  if (score === null || score === undefined || isNaN(score)) {
+    return '0/100';
+  }
   return `${score.toFixed(0)}/100`;
 }
