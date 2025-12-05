@@ -15,6 +15,8 @@ import { formatCurrency, formatNumber, formatPercentage } from '@/lib/utils/form
 import type { AnalyticsSummary } from '@/types';
 
 export default function DashboardPage() {
+  console.log('📈 DASHBOARD PAGE INITIALIZING');
+  
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,13 +33,22 @@ export default function DashboardPage() {
 
       logger.info('Fetching dashboard analytics', { days: 7, isRetry: retryAttempt });
 
+      console.log('📈 FETCHING ANALYTICS...');
       const data = await dashboardApi.getAnalytics(7);
+      
+      console.log('✅ ANALYTICS DATA RECEIVED:', {
+        hasData: !!data,
+        dataKeys: data ? Object.keys(data) : [],
+        totalTransactions: data?.total_transactions,
+        totalAmount: data?.total_amount
+      });
+      
       setAnalytics(data);
 
       logger.info('Dashboard analytics loaded successfully', {
-        total_transactions: data.total_transactions,
-        total_amount: data.total_amount,
-        fraud_rate: data.fraud_percentage,
+        total_transactions: data?.total_transactions || 0,
+        total_amount: data?.total_amount || 0,
+        fraud_rate: data?.fraud_percentage || 0,
       });
     } catch (err: any) {
       logger.error('Failed to load dashboard analytics', {
@@ -92,7 +103,9 @@ export default function DashboardPage() {
       <LoadingState message="Obteniendo datos de analítica..." />
     </div>
   );
-}  if (error) {
+  }
+  
+  if (error) {
     return (
       <div className="space-y-8">
         {/* Header Section */}
@@ -138,7 +151,16 @@ export default function DashboardPage() {
     );
   }
 
-  return (
+  // Render with error boundary
+  try {
+    console.log('✨ RENDERING DASHBOARD WITH DATA:', {
+      hasAnalytics: !!analytics,
+      totalTransactions: analytics?.total_transactions,
+      totalAmount: analytics?.total_amount,
+      fraudRate: analytics?.fraud_percentage
+    });
+    
+    return (
     <div className="space-y-8">
       {/* Header Section */}
       <div className="dygsom-card dygsom-card-hover p-8">
@@ -156,7 +178,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">"
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="dygsom-card dygsom-card-hover border-l-4 border-l-blue-500">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-slate-600 flex items-center">
@@ -168,7 +190,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold dygsom-text-primary mb-1">
-              {formatNumber(analytics.total_transactions)}
+              {formatNumber(analytics?.total_transactions || 0)}
             </div>
             <div className="text-xs text-slate-500">Procesadas en el período</div>
           </CardContent>
@@ -185,7 +207,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-600 mb-1">
-              {formatCurrency(analytics.total_amount)}
+              {formatCurrency(analytics?.total_amount || 0)}
             </div>
           </CardContent>
         </Card>
@@ -268,7 +290,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {analytics.fraud_by_payment_method.map((method) => (
+            {(analytics?.fraud_by_payment_method || []).map((method) => (
               <div key={method.payment_method} className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900">
@@ -293,4 +315,47 @@ export default function DashboardPage() {
       </Card>
     </div>
   );
+  } catch (renderError: any) {
+    console.error('🚨 DASHBOARD RENDER ERROR:', {
+      error: renderError,
+      message: renderError?.message,
+      stack: renderError?.stack,
+      analytics: analytics
+    });
+    
+    return (
+      <div className="space-y-6">
+        <div className="dygsom-card p-8 border-red-200 bg-red-50">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-red-800">Error al renderizar dashboard</h2>
+              <p className="text-red-600">Ha ocurrido un error inesperado al mostrar los datos.</p>
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-red-100 rounded-md">
+            <p className="text-sm text-red-700">
+              <strong>Error:</strong> {renderError?.message || 'Error desconocido'}
+            </p>
+          </div>
+          <div className="mt-4">
+            <button 
+              onClick={() => {
+                setError(null);
+                setAnalytics(null);
+                fetchAnalytics();
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            >
+              Recargar Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
