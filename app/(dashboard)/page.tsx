@@ -222,7 +222,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {formatNumber(getAnalyticsValue(analytics?.fraud_transactions, 0))}
+              {formatNumber(getAnalyticsValue(analytics?.fraud_detected, 0))}
             </div>
             <p className="text-xs text-gray-500">
               {formatPercentage(getAnalyticsValue(analytics?.fraud_percentage, 0))} del total
@@ -264,7 +264,7 @@ export default function DashboardPage() {
               <span className="font-medium">
                 {formatNumber(
                   getAnalyticsValue(analytics?.total_transactions, 0) - 
-                  getAnalyticsValue(analytics?.fraud_transactions, 0)
+                  getAnalyticsValue(analytics?.fraud_detected, 0)
                 )}
               </span>
             </div>
