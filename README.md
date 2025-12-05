@@ -479,8 +479,3 @@ docker exec dygsom-fraud-api python check_users.py
 **Credenciales:** admin@dygsom.com / SecurePass123
 
 ---
-
-*Última actualización: 5 de diciembre de 2025*
-#   F i x   A P I   e n d p o i n t   f o r   p r o d u c t i o n   d e p l o y m e n t   1 2 / 0 4 / 2 0 2 5   0 9 : 4 9 : 1 2 
- 
- 

@@ -58,26 +58,34 @@ class ApiClient {
 
         // Performance monitoring removed during cleanup
 
-        // Add authentication token with detailed logging
+        // Add authentication token with production-safe logging
         const token = storage.getItem<string>(AUTH_CONFIG.tokenStorageKey);
-        console.log('🔐 API REQUEST AUTH SETUP:', {
-          requestId,
-          url: config.url,
-          method: config.method?.toUpperCase(),
-          hasToken: !!token,
-          tokenStart: token ? token.substring(0, 20) + '...' : 'NO TOKEN',
-          tokenLength: token?.length || 0,
-          hasHeaders: !!config.headers,
-          currentPath: typeof window !== 'undefined' ? window.location.pathname : 'server'
-        });
+        
+        // Development-only detailed logging (removed from production)
+        if (process.env.NODE_ENV === 'development') {
+          logger.debug('API Request Auth Setup', {
+            requestId,
+            url: config.url,
+            method: config.method?.toUpperCase(),
+            hasToken: !!token,
+            tokenLength: token?.length || 0,
+            hasHeaders: !!config.headers,
+            currentPath: typeof window !== 'undefined' ? window.location.pathname : 'server'
+          });
+        }
         
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
-          console.log('✅ AUTHORIZATION HEADER SET');
-        } else if (!token) {
-          console.log('❌ NO TOKEN FOUND IN STORAGE');
-        } else if (!config.headers) {
-          console.log('❌ NO HEADERS OBJECT');
+          if (process.env.NODE_ENV === 'development') {
+            logger.debug('Authorization header set successfully');
+          }
+        } else {
+          // Log auth failures in all environments for debugging
+          logger.warn('Authentication token missing', {
+            hasToken: !!token,
+            hasHeaders: !!config.headers,
+            url: config.url
+          });
         }
 
         // Log request
@@ -132,21 +140,22 @@ class ApiClient {
           // Unauthorized - detailed logging and clear token
           const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
           const currentToken = storage.getItem<string>(AUTH_CONFIG.tokenStorageKey);
-          const authHeader = error.config?.headers?.Authorization;
           
-          console.error('🚨 401 UNAUTHORIZED ERROR DETAILS:', {
-            url,
-            method,
-            currentPath,
-            hasStoredToken: !!currentToken,
-            storedTokenStart: currentToken ? currentToken.substring(0, 20) + '...' : 'NONE',
-            storedTokenLength: currentToken?.length || 0,
-            authHeaderSent: authHeader || 'NONE',
-            authHeaderMatches: authHeader === `Bearer ${currentToken}`,
-            responseData: error.response?.data,
-            requestHeaders: error.config?.headers,
-            timestamp: new Date().toISOString()
-          });
+          // Production-safe logging for 401 errors
+          if (process.env.NODE_ENV === 'development') {
+            logger.error('401 Unauthorized Error Details', {
+              url,
+              method,
+              currentPath,
+              hasStoredToken: !!currentToken,
+              storedTokenLength: currentToken?.length || 0,
+              responseData: error.response?.data,
+              timestamp: new Date().toISOString()
+            });
+          } else {
+            // Production: log minimal info for security
+            logger.warn('Authentication failed', { url, method });
+          }
           
           logger.auth('Unauthorized request - clearing auth', {
             url,
@@ -167,6 +176,16 @@ class ApiClient {
           if (typeof window !== 'undefined' && !currentPath.includes('/login')) {
             window.location.href = '/login';
           }
+        } else if (status === 403) {
+          // Forbidden - user doesn't have permission (e.g., non-admin accessing admin endpoints)
+          logger.warn('Access forbidden', {
+            url,
+            method,
+            responseData: error.response?.data
+          });
+          
+          // Don't clear auth for 403 - user is authenticated but lacks permission
+          // Let the component handle the error appropriately
         }
 
         // Format error response
@@ -186,22 +205,26 @@ class ApiClient {
    * GET request with retry logic
    */
   async get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    // Debug logging for GET requests
-    const token = storage.getItem<string>(AUTH_CONFIG.tokenStorageKey);
-    console.log('🔍 API GET REQUEST DEBUG:', {
-      url,
-      hasToken: !!token,
-      tokenLength: token?.length || 0,
-      config: config ? Object.keys(config) : 'none',
-      timestamp: new Date().toISOString()
-    });
+    // Development-only debug logging
+    if (process.env.NODE_ENV === 'development') {
+      const token = storage.getItem<string>(AUTH_CONFIG.tokenStorageKey);
+      logger.debug('API GET Request', {
+        url,
+        hasToken: !!token,
+        config: config ? Object.keys(config) : 'none',
+        timestamp: new Date().toISOString()
+      });
+    }
     
     const response = await this.client.get<T>(url, config);
-    console.log('✅ API GET SUCCESS:', {
-      url,
-      status: response.status,
-      hasData: !!response.data
-    });
+    
+    if (process.env.NODE_ENV === 'development') {
+      logger.debug('API GET Success', {
+        url,
+        status: response.status,
+        hasData: !!response.data
+      });
+    }
     return response.data;
   }
 

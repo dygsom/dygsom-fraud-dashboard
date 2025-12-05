@@ -20,6 +20,7 @@ import { storage } from '@/lib/storage';
 import { logger } from '@/lib/logger';
 import { AUTH_CONFIG } from '@/config/constants';
 import { ROUTES } from '@/config/routes';
+import { isTokenExpired, shouldShowRefreshWarning, shouldAutoLogout, getTokenExpirationMinutes } from '@/lib/utils/jwt';
 import type { User, AuthContextType, SignupRequest, LoginRequest } from '@/types';
 
 /**
@@ -33,6 +34,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 interface AuthProviderProps {
   children: ReactNode;
 }
+
+
 
 /**
  * Auth Provider Component
@@ -48,18 +51,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   useEffect(() => {
     const initAuth = async () => {
-      console.log('🚀 INITIALIZING AUTH CONTEXT');
+      if (process.env.NODE_ENV === 'development') {
+        logger.debug('Initializing Auth Context');
+      }
+      
       try {
         const storedToken = storage.getItem<string>(AUTH_CONFIG.tokenStorageKey);
-        console.log('🔑 STORED TOKEN CHECK:', {
-          hasToken: !!storedToken,
-          tokenLength: storedToken?.length || 0,
-          tokenStart: storedToken ? storedToken.substring(0, 10) + '...' : 'none'
-        });
+        
+        if (process.env.NODE_ENV === 'development') {
+          logger.debug('Stored token check', {
+            hasToken: !!storedToken,
+            tokenLength: storedToken?.length || 0
+          });
+        }
 
         if (storedToken) {
+          // Check token validity using robust JWT utilities
+          if (isTokenExpired(storedToken) || shouldAutoLogout(storedToken)) {
+            const expirationMinutes = getTokenExpirationMinutes(storedToken);
+            logger.warn('Token expired or about to expire, clearing auth', { 
+              expirationMinutes,
+              isExpired: isTokenExpired(storedToken),
+              shouldAutoLogout: shouldAutoLogout(storedToken)
+            });
+            storage.removeItem(AUTH_CONFIG.tokenStorageKey);
+            setToken(null);
+            setUser(null);
+            return;
+          }
+
+          // Show refresh warning if needed
+          if (shouldShowRefreshWarning(storedToken)) {
+            const minutesLeft = getTokenExpirationMinutes(storedToken);
+            logger.warn('Token will expire soon', { minutesLeft });
+            // Here you could show a toast notification to the user
+          }
+          
           setToken(storedToken);
-          console.log('📝 TOKEN SET IN STATE');
           
           // Give a small delay to ensure token is set in axios interceptor
           await new Promise(resolve => setTimeout(resolve, 50));
@@ -67,6 +95,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
           // Try to fetch current user with stored token
           const currentUser = await authApi.getCurrentUser();
           setUser(currentUser);
+          
+          // Set up token refresh timer using JWT utilities
+          const minutesUntilExpiry = getTokenExpirationMinutes(storedToken);
+          if (minutesUntilExpiry && minutesUntilExpiry > AUTH_CONFIG.refreshWarningMinutes) {
+            const refreshTime = Math.max(0, (minutesUntilExpiry - AUTH_CONFIG.refreshWarningMinutes) * 60 * 1000);
+            setTimeout(() => {
+              logger.info('Token refresh needed - please re-login');
+              logout();
+            }, refreshTime);
+          }
 
           logger.auth('User authenticated from storage', {
             userId: currentUser.id,
@@ -121,13 +159,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         });
 
         // Redirect immediately
-        console.log('🎆 LOGIN SUCCESS - REDIRECTING TO DASHBOARD:', {
-          hasUser: !!response.user,
-          hasToken: !!response.access_token,
-          userId: response.user.id,
-          userEmail: response.user.email,
-          dashboardRoute: ROUTES.protected.dashboard
-        });
+        if (process.env.NODE_ENV === 'development') {
+          logger.debug('Login Success - Redirecting to Dashboard', {
+            hasUser: !!response.user,
+            hasToken: !!response.access_token,
+            userId: response.user.id,
+            userEmail: response.user.email,
+            dashboardRoute: ROUTES.protected.dashboard
+          });
+        }
         router.push(ROUTES.protected.dashboard);
       } catch (error) {
         logger.error('Login failed', error);

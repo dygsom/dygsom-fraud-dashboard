@@ -35,7 +35,9 @@ export const API_CONFIG = {
 
 export const AUTH_CONFIG = {
   tokenStorageKey: process.env.NEXT_PUBLIC_TOKEN_STORAGE_KEY || 'dygsom_auth_token',
-  tokenExpiryHours: parseInt(process.env.NEXT_PUBLIC_TOKEN_EXPIRY_HOURS || '24', 10),
+  tokenExpiryHours: parseInt(process.env.NEXT_PUBLIC_TOKEN_EXPIRY_HOURS || '2', 10), // Reduced from 24h to 2h for security
+  refreshWarningMinutes: 10, // Warn user 10 minutes before expiry
+  autoLogoutGraceMinutes: 2, // Grace period before auto-logout
 } as const;
 
 export const FEATURE_FLAGS = {
