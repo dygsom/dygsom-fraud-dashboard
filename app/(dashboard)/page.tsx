@@ -27,7 +27,6 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const fetchAnalytics = useCallback(async (retryAttempt = false) => {
     try {
@@ -81,7 +80,6 @@ export default function DashboardPage() {
       });
       
       setAnalytics(data);
-      setLastUpdated(new Date());
 
       logger.info('Dashboard analytics loaded successfully', {
         total_transactions: data?.total_transactions || 0,
