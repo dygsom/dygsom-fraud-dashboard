@@ -8,7 +8,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { DygsomLogo } from '@/components/ui/dygsom-logo';
 import { cn } from '@/lib/utils';
 import { ROUTES } from '@/config/routes';
 
@@ -66,13 +65,8 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-72 dygsom-card border-r border-blue-100/60 border-t-0 border-l-0 border-b-0 rounded-none">
-      <div className="p-6">
-        {/* DYGSOM Logo */}
-        <div className="mb-8">
-          <DygsomLogo size="lg" className="mb-2" />
-        </div>
-        
+    <aside className="hidden lg:block w-64 xl:w-72 bg-white border-r border-gray-200 border-t-0 border-l-0 border-b-0 rounded-none shadow-sm">
+      <div className="p-4 xl:p-6">
         {/* Navigation Title */}
         <div className="mb-6">
           <h2 className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">

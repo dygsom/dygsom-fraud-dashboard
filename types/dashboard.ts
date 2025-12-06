@@ -92,3 +92,61 @@ export interface DashboardStats {
   active_api_keys: number;
   avg_response_time: number;
 }
+
+// Extended Analytics Types
+export interface DateRangeOption {
+  label: string;
+  value: string;
+  days: number;
+}
+
+export interface ChartDataPoint {
+  date: string;
+  value: number;
+  label?: string;
+}
+
+export interface FraudRateData {
+  date: string;
+  transactions: number;
+  fraudCount: number;
+  fraudRate: number;
+  amount: number;
+}
+
+export interface RiskDistributionData {
+  risk_level: string;
+  count: number;
+  percentage: number;
+  color: string;
+}
+
+export interface VolumeAnalytics {
+  daily_volume: ChartDataPoint[];
+  hourly_distribution: ChartDataPoint[];
+  payment_method_distribution: ChartDataPoint[];
+}
+
+export interface AnalyticsTimeframe {
+  startDate: string;
+  endDate: string;
+  period: '7d' | '30d' | '90d' | 'custom';
+}
+
+export interface DetailedAnalytics extends AnalyticsSummary {
+  fraud_rate_trend: FraudRateData[];
+  volume_analytics: VolumeAnalytics;
+  risk_distribution_detailed: RiskDistributionData[];
+  comparison_metrics: {
+    previous_period_fraud_rate: number;
+    previous_period_volume: number;
+    fraud_rate_change: number;
+    volume_change: number;
+  };
+}
+
+export interface ExportOptions {
+  format: 'csv' | 'pdf' | 'json';
+  dateRange: AnalyticsTimeframe;
+  includeCharts?: boolean;
+}

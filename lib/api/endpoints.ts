@@ -15,6 +15,11 @@ import type {
   Transaction,
   TransactionFilters,
   AnalyticsSummary,
+  DetailedAnalytics,
+  VolumeAnalytics,
+  FraudRateData,
+  RiskDistributionData,
+  AnalyticsTimeframe,
   ApiKey,
   CreateApiKeyRequest,
   CreateApiKeyResponse,
@@ -69,6 +74,61 @@ export const dashboardApi = {
   getAnalytics: (days: number = 7): Promise<AnalyticsSummary> => {
     return apiClient.get<AnalyticsSummary>(API_CONFIG.endpoints.dashboard.analytics, {
       params: { days },
+    });
+  },
+
+  /**
+   * Get detailed analytics with charts data
+   */
+  getDetailedAnalytics: (timeframe: AnalyticsTimeframe): Promise<DetailedAnalytics> => {
+    return apiClient.get<DetailedAnalytics>(`${API_CONFIG.endpoints.dashboard.analytics}/detailed`, {
+      params: {
+        start_date: timeframe.startDate,
+        end_date: timeframe.endDate,
+        period: timeframe.period,
+      },
+    });
+  },
+
+  /**
+   * Get fraud rate trend data
+   */
+  getFraudRateTrend: (days: number = 30): Promise<FraudRateData[]> => {
+    return apiClient.get<FraudRateData[]>(`${API_CONFIG.endpoints.dashboard.analytics}/fraud-rate-trend`, {
+      params: { days },
+    });
+  },
+
+  /**
+   * Get volume analytics
+   */
+  getVolumeAnalytics: (days: number = 30): Promise<VolumeAnalytics> => {
+    return apiClient.get<VolumeAnalytics>(`${API_CONFIG.endpoints.dashboard.analytics}/volume`, {
+      params: { days },
+    });
+  },
+
+  /**
+   * Get risk distribution data
+   */
+  getRiskDistribution: (days: number = 30): Promise<RiskDistributionData[]> => {
+    return apiClient.get<RiskDistributionData[]>(`${API_CONFIG.endpoints.dashboard.analytics}/risk-distribution`, {
+      params: { days },
+    });
+  },
+
+  /**
+   * Export analytics data
+   */
+  exportAnalytics: (format: 'csv' | 'pdf', timeframe: AnalyticsTimeframe): Promise<Blob> => {
+    return apiClient.get(`${API_CONFIG.endpoints.dashboard.analytics}/export`, {
+      params: {
+        format,
+        start_date: timeframe.startDate,
+        end_date: timeframe.endDate,
+        period: timeframe.period,
+      },
+      responseType: 'blob',
     });
   },
 

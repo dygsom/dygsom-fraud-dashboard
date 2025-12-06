@@ -9,9 +9,10 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { MobileSidebar } from '@/components/layout/MobileSidebar';
 import { storage } from '@/lib/storage';
 
 export default function DashboardLayout({
@@ -21,6 +22,7 @@ export default function DashboardLayout({
 }) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Debug logging for dashboard state
   useEffect(() => {
@@ -93,12 +95,24 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <Header />
+        <Header onMenuClick={() => {
+          console.log('Opening mobile sidebar');
+          setIsMobileSidebarOpen(true);
+        }} />
+        
+        {/* Mobile Sidebar */}
+        <MobileSidebar 
+          isOpen={isMobileSidebarOpen} 
+          onClose={() => {
+            console.log('Closing mobile sidebar');
+            setIsMobileSidebarOpen(false);
+          }} 
+        />
         
         {/* Main Layout with Sidebar */}
         <div className="flex">
           <Sidebar />
-          <main className="flex-1 p-6">{children}</main>
+          <main className="flex-1 p-4 sm:p-6 lg:ml-0">{children}</main>
         </div>
       </div>
     );
