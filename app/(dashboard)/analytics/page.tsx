@@ -175,10 +175,10 @@ export default function AnalyticsPage() {
             };
           }),
           fraud_by_payment_method: [
-            { payment_method: 'credit_card', total_transactions: Math.floor(totalTransactions * 0.4), fraud_count: Math.floor(fraudDetected * 0.3), fraud_rate: 3.2 },
-            { payment_method: 'debit_card', total_transactions: Math.floor(totalTransactions * 0.25), fraud_count: Math.floor(fraudDetected * 0.2), fraud_rate: 2.1 },
-            { payment_method: 'paypal', total_transactions: Math.floor(totalTransactions * 0.2), fraud_count: Math.floor(fraudDetected * 0.15), fraud_rate: 1.8 },
-            { payment_method: 'bank_transfer', total_transactions: Math.floor(totalTransactions * 0.15), fraud_count: Math.floor(fraudDetected * 0.35), fraud_rate: 5.7 }
+            { payment_method: 'credit_card', total_transactions: Math.floor(totalTransactions * 0.4), fraud_count: Math.floor(fraudDetected * 0.3), fraud_rate: 0.032 },
+            { payment_method: 'debit_card', total_transactions: Math.floor(totalTransactions * 0.25), fraud_count: Math.floor(fraudDetected * 0.2), fraud_rate: 0.021 },
+            { payment_method: 'paypal', total_transactions: Math.floor(totalTransactions * 0.2), fraud_count: Math.floor(fraudDetected * 0.15), fraud_rate: 0.018 },
+            { payment_method: 'bank_transfer', total_transactions: Math.floor(totalTransactions * 0.15), fraud_count: Math.floor(fraudDetected * 0.35), fraud_rate: 0.057 }
           ]
         };
         
@@ -462,7 +462,7 @@ export default function AnalyticsPage() {
                   {formatNumber(analytics.total_transactions - analytics.fraud_detected)}
                 </div>
                 <p className="text-sm text-green-600">
-                  {formatPercentage(100 - analytics.fraud_percentage)} verified as legitimate
+                  {formatPercentage(1 - analytics.fraud_percentage)} verified as legitimate
                 </p>
               </div>
               
