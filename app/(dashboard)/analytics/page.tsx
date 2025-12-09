@@ -148,21 +148,22 @@ export default function AnalyticsPage() {
         // If API fails, use mock data
         console.log('API failed, using mock data:', apiError.message);
         
-        // Generate mock analytics data
-        const totalTransactions = Math.floor(Math.random() * 5000 + 1000);
-        const fraudDetected = Math.floor(totalTransactions * (Math.random() * 0.08 + 0.02));
+        // Generate consistent, realistic mock analytics data
+        const totalTransactions = 4256; // Realistic volume for analytics
+        const fraudDetected = 89; // ~2.1% fraud rate (realistic)
+        const fraudPercentage = fraudDetected / totalTransactions; // 0.0209 = 2.09%
         
         const mockAnalytics: AnalyticsSummary = {
           total_transactions: totalTransactions,
-          total_amount: Math.random() * 1000000 + 100000,
+          total_amount: 1247830.75, // Realistic total amount
           fraud_detected: fraudDetected,
-          fraud_percentage: (fraudDetected / totalTransactions), // Ya como decimal (0-1)
-          avg_risk_score: Math.random() * 0.4 + 0.3, // 0.3-0.7
+          fraud_percentage: parseFloat(fraudPercentage.toFixed(4)), // Decimal limpio (0-1)
+          avg_risk_score: 0.38, // Score promedio realista
           risk_distribution: {
-            low: Math.floor(totalTransactions * 0.4),
-            medium: Math.floor(totalTransactions * 0.35),
-            high: Math.floor(totalTransactions * 0.2),
-            critical: Math.floor(totalTransactions * 0.05)
+            low: Math.floor(totalTransactions * 0.76), // 76% low risk
+            medium: Math.floor(totalTransactions * 0.17), // 17% medium risk
+            high: Math.floor(totalTransactions * 0.05), // 5% high risk
+            critical: Math.floor(totalTransactions * 0.02) // 2% critical risk
           },
           transactions_by_day: Array.from({ length: days }, (_, i) => {
             const date = format(subDays(new Date(), days - 1 - i), 'yyyy-MM-dd');

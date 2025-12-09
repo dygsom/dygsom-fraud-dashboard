@@ -50,23 +50,25 @@ export default function DashboardPage() {
         data = await dashboardApi.getAnalytics(DASHBOARD_CONFIG.ANALYTICS_DAYS);
         console.log('✅ REAL API DATA RECEIVED');
       } catch (apiError: any) {
-        // If API fails, generate mock data
+        // If API fails, generate realistic mock data
         console.log('❌ API failed, using mock data:', apiError.message);
         
-        const totalTransactions = Math.floor(Math.random() * 5000 + 1000);
-        const fraudDetected = Math.floor(totalTransactions * (Math.random() * 0.08 + 0.02));
+        // Generate realistic, consistent mock data
+        const totalTransactions = 2847; // Realistic daily volume
+        const fraudDetected = 58; // ~2% fraud rate (realistic)
+        const fraudPercentage = fraudDetected / totalTransactions; // 0.0204 = 2.04%
         
         data = {
           total_transactions: totalTransactions,
-          total_amount: Math.random() * 1000000 + 100000,
+          total_amount: 895430.50, // Realistic total amount
           fraud_detected: fraudDetected,
-          fraud_percentage: (fraudDetected / totalTransactions), // Ya como decimal (0-1)
-          avg_risk_score: Math.random() * 0.4 + 0.3,
+          fraud_percentage: parseFloat(fraudPercentage.toFixed(4)), // Decimal limpio (0-1)
+          avg_risk_score: 0.45, // Score promedio realista
           risk_distribution: {
-            low: Math.floor(totalTransactions * 0.4),
-            medium: Math.floor(totalTransactions * 0.35),
-            high: Math.floor(totalTransactions * 0.2),
-            critical: Math.floor(totalTransactions * 0.05)
+            low: Math.floor(totalTransactions * 0.75), // 75% low risk
+            medium: Math.floor(totalTransactions * 0.18), // 18% medium risk  
+            high: Math.floor(totalTransactions * 0.05), // 5% high risk
+            critical: Math.floor(totalTransactions * 0.02) // 2% critical risk
           },
           transactions_by_day: [],
           fraud_by_payment_method: []
