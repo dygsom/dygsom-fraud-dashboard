@@ -70,3 +70,18 @@ jobs:
         subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         subject-digest: ${{ steps.build.outputs.digest }}
         push-to-registry: true
+
+    - name: Trigger local n8n deployment
+      if: success() && github.ref == 'refs/heads/main'
+      run: |
+        curl -X POST "http://TU_IP_LOCAL:5678/webhook/azure-deploy" \
+          -H "Content-Type: application/json" \
+          -H "X-Deploy-Token: ${{ secrets.N8N_LOCAL_TOKEN }}" \
+          -d '{
+            "event": "image_built",
+            "repository": "${{ github.repository }}",
+            "commit": "${{ github.sha }}",
+            "commit_short": "'${GITHUB_SHA:0:7}'",
+            "image_tag": "main",
+            "timestamp": "'$(date -u +%Y%m%d%H%M%S)'"
+          }' || echo "n8n webhook failed - continuing anyway"

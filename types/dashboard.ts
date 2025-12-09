@@ -35,7 +35,7 @@ export interface AnalyticsSummary {
   total_transactions: number;
   total_amount: number;
   fraud_detected: number;
-  fraud_percentage: number;
+  fraud_percentage: number; // Decimal value 0-1 (e.g., 0.08 = 8%)
   avg_risk_score: number;
   risk_distribution: RiskDistribution;
   transactions_by_day: TransactionsByDay[];

@@ -156,7 +156,7 @@ export default function AnalyticsPage() {
           total_transactions: totalTransactions,
           total_amount: Math.random() * 1000000 + 100000,
           fraud_detected: fraudDetected,
-          fraud_percentage: (fraudDetected / totalTransactions) * 100,
+          fraud_percentage: (fraudDetected / totalTransactions), // Ya como decimal (0-1)
           avg_risk_score: Math.random() * 0.4 + 0.3, // 0.3-0.7
           risk_distribution: {
             low: Math.floor(totalTransactions * 0.4),
