@@ -61,7 +61,7 @@ const RiskDistributionChart: React.FC<RiskDistributionChartProps> = ({
         fontSize="12"
         fontWeight="600"
       >
-        {`${(percentage).toFixed(0)}%`}
+        {`${(percentage * 100).toFixed(0)}%`}
       </text>
     );
   };
@@ -71,7 +71,7 @@ const RiskDistributionChart: React.FC<RiskDistributionChartProps> = ({
       return [value.toLocaleString(), 'Transactions'];
     }
     if (name === 'percentage') {
-      return [`${value.toFixed(1)}%`, 'Percentage'];
+      return [`${(value * 100).toFixed(1)}%`, 'Percentage'];
     }
     return [value, name];
   };
@@ -197,7 +197,7 @@ const RiskDistributionChart: React.FC<RiskDistributionChartProps> = ({
                       {item.count.toLocaleString()}
                     </div>
                     <div className="text-sm text-gray-500">
-                      {item.percentage.toFixed(1)}%
+                      {(item.percentage * 100).toFixed(1)}%
                     </div>
                   </div>
                 </div>

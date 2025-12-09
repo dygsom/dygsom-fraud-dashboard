@@ -34,7 +34,7 @@ const FraudRateChart: React.FC<FraudRateChartProps> = ({
   const chartData = data.map((item) => ({
     ...item,
     formattedDate: format(parseISO(item.date), 'MMM dd'),
-    fraudRatePercent: Math.round(item.fraudRate * 100) / 100, // Round to 2 decimals
+    fraudRatePercent: Math.round(item.fraudRate * 100 * 100) / 100, // fraudRate is 0-1, convert to percentage and round to 2 decimals
   }));
 
   const formatTooltipValue = (value: any, name: string) => {
