@@ -71,7 +71,7 @@ export default function AnalyticsPage() {
       const date = format(subDays(new Date(), i), 'yyyy-MM-dd');
       const transactions = Math.floor(Math.random() * 1000 + 200);
       const fraudCount = Math.floor(transactions * (Math.random() * 0.08 + 0.02)); // 2-10% fraud rate
-      const fraudRate = (fraudCount / transactions) * 100;
+      const fraudRate = fraudCount / transactions; // ← Decimal (0-1) para formatPercentage
       const amount = transactions * (Math.random() * 200 + 50);
       
       data.push({
@@ -107,25 +107,25 @@ export default function AnalyticsPage() {
       {
         risk_level: 'low',
         count: analytics.risk_distribution.low,
-        percentage: (analytics.risk_distribution.low / total) * 100,
+        percentage: analytics.risk_distribution.low / total, // ← Decimal (0-1) para formatPercentage
         color: ANALYTICS_CONFIG.CHART_COLORS.risk.low
       },
       {
         risk_level: 'medium', 
         count: analytics.risk_distribution.medium,
-        percentage: (analytics.risk_distribution.medium / total) * 100,
+        percentage: analytics.risk_distribution.medium / total, // ← Decimal (0-1) para formatPercentage
         color: ANALYTICS_CONFIG.CHART_COLORS.risk.medium
       },
       {
         risk_level: 'high',
         count: analytics.risk_distribution.high,
-        percentage: (analytics.risk_distribution.high / total) * 100,
+        percentage: analytics.risk_distribution.high / total, // ← Decimal (0-1) para formatPercentage
         color: ANALYTICS_CONFIG.CHART_COLORS.risk.high
       },
       {
         risk_level: 'critical',
         count: analytics.risk_distribution.critical,
-        percentage: (analytics.risk_distribution.critical / total) * 100,
+        percentage: analytics.risk_distribution.critical / total, // ← Decimal (0-1) para formatPercentage
         color: ANALYTICS_CONFIG.CHART_COLORS.risk.critical
       }
     ];
