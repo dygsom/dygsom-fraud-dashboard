@@ -3,6 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
+        - echo "Node version:"
+        - node --version
+        - echo "NPM version:"
+        - npm --version
         - echo "Installing dependencies..."
         - npm ci
     build:
@@ -11,9 +15,11 @@ frontend:
         - echo "NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL" >> .env.production
         - echo "NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME" >> .env.production
         - echo "NEXT_PUBLIC_ENVIRONMENT=production" >> .env.production
+        - echo "Current directory:" && pwd
+        - echo "Files in directory:" && ls -la
         - npm run build
   artifacts:
-    baseDirectory: .
+    baseDirectory: .next
     files:
       - '**/*'
   cache:
