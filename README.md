@@ -165,6 +165,10 @@ El dashboard implementa un **sistema de fallback a datos mock** cuando los endpo
 |----------|---------------|----------|
 | `GET /v1/metrics` | ❌ No implementado | ✅ Mock data |
 | `GET /v1/scores/recent` | ❌ No implementado | ✅ Mock data |
+| `GET /v1/analytics/fraud-rate` | ❌ No implementado | ✅ Mock data |
+| `GET /v1/analytics/volume` | ❌ No implementado | ✅ Mock data |
+| `GET /v1/analytics/risk-distribution` | ❌ No implementado | ✅ Mock data |
+| `GET /v1/analytics/export` | ❌ No implementado | ✅ Mock CSV/JSON |
 | `POST /v1/health` | ✅ Implementado | N/A (funcional) |
 
 ### 🔍 Cómo Funciona
@@ -194,7 +198,7 @@ metrics: {
 
 ### 📊 Datos Mock Incluidos
 
-**Dashboard Metrics (lib/api/client.ts líneas ~115-135):**
+**Dashboard Metrics (lib/api/client.ts líneas ~175-195):**
 - Total requests 24h: 1,247
 - Bloqueados: 89 (7.1%)
 - Avg risk score: 0.34
@@ -202,10 +206,35 @@ metrics: {
 - Actions distribution (allow/block/challenge/friction)
 - Pillar avg scores (bot, ATO, API security, ML)
 
-**Recent Scores (lib/api/client.ts líneas ~90-165):**
+**Recent Scores (lib/api/client.ts líneas ~125-170):**
 - Score response con pillar_scores
 - Signals detallados (bot_detection, account_takeover, api_security, fraud_ml)
 - Datos realistas para testing UI
+
+**Analytics - Fraud Rate Trend (lib/api/client.ts líneas ~220-240):**
+- Últimos 7 días de datos
+- Total requests, blocked requests, fraud rate %
+- Datos generados dinámicamente (5-8% fraud rate)
+
+**Analytics - Volume Trend (lib/api/client.ts líneas ~245-265):**
+⚠️ /analytics/fraud-rate endpoint not available, using mock data
+⚠️ /analytics/volume endpoint not available, using mock data
+⚠️ /analytics/risk-distribution endpoint not available, using mock data
+⚠️ /analytics/export endpoint not available, generating mock export
+- Últimas 24 horas (por hora)
+- Request count por timestamp
+- Volumen entre 40-70 requests/hora
+
+**Analytics - Risk Distribution (lib/api/client.ts líneas ~270-285):**
+- Low: 892 (71.5%)
+- Medium: 245 (19.6%)
+- High: 87 (7.0%)
+- Critical: 23 (1.9%)
+
+**Analytics - Export CSV/JSON (lib/api/client.ts líneas ~290-320):**
+- CSV: 7 días de datos con headers
+- JSON: Estructura completa con summary y daily_data
+- Descarga automática como archivo
 
 ### 🔔 Detección de Mock Data
 
@@ -264,15 +293,20 @@ npm run deploy
 - ✅ Authentication via /health (funcional)
 - ❌ Dashboard metrics (mock fallback)
 - ❌ Recent scores (mock fallback)
-- ❌ Analytics endpoints (mock fallback)
-- ❌ Transactions history (mock fallback)
-- ❌ Config management (mock fallback)
+- ❌ Analytics fraud-rate (mock fallback)
+- ❌ Analytics volume (mock fallback)
+- ❌ Analytics risk-distribution (mock fallback)
+- ❌ Analytics export (mock fallback)
+- ❌ Transactions history (no implementado)
+- ❌ Config management (no implementado)
 
 **Próximos Pasos:**
 1. Implementar `/v1/metrics` en Lambda
 2. Implementar `/v1/scores/recent` en Lambda
-3. Implementar `/v1/analytics/*` endpoints
-4. Dashboard usará datos reales automáticamente
+3. Implementar `/v1/analytics/*` endpoints (fraud-rate, volume, risk-distribution, export)
+4. Implementar `/v1/transactions` endpoint
+5. Implementar `/v1/config` endpoint (GET + PATCH)
+6. Dashboard usará datos reales automáticamente
 
 ### 📝 Para Desarrolladores
 
