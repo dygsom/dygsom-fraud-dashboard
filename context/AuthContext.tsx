@@ -54,8 +54,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function validateApiKey(key: string) {
     setIsLoading(true);
     try {
-      const response = await api.auth.validate();
-      setTenant(response);
+      // Store API key temporarily for the request
+      const tempApiKey = localStorage.getItem('dygsom_api_key');
+      localStorage.setItem('dygsom_api_key', key);
+      
+      // Test API key by making a minimal health check request
+      // Backend will validate the API key via X-API-Key header
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/v1'}/health`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': key,
+        },
+        body: JSON.stringify({
+          event_type: 'login',
+          ip_address: '127.0.0.1',
+          user_id: 'dashboard_auth_check',
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid API Key');
+      }
+
+      const data = await response.json();
+      
+      // Extract tenant info from response or create basic tenant object
+      const tenantInfo: Tenant = {
+        id: data.tenant_id || 'unknown',
+        name: data.tenant_name || 'Unknown Tenant',
+        tier: (data.tier || 'starter') as 'starter' | 'professional' | 'enterprise',
+        api_key: key,
+        created_at: new Date().toISOString(),
+        status: 'active' as const,
+      };
+      
+      setTenant(tenantInfo);
       setApiKey(key);
       localStorage.setItem('dygsom_api_key', key);
     } catch (error: unknown) {
