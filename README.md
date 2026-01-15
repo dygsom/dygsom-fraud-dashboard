@@ -149,6 +149,156 @@ Tenant: DYGSOM Test Company
 Status: active (enterprise tier)
 ```
 
+---
+
+## 🎭 Mock Data Fallback System
+
+### ⚠️ Estado Actual (Build #15)
+
+El dashboard implementa un **sistema de fallback a datos mock** cuando los endpoints del backend no están disponibles. Esto permite que la interfaz funcione durante el desarrollo incremental del backend.
+
+### 📍 Endpoints con Fallback
+
+**Endpoints que usan mock data cuando fallan:**
+
+| Endpoint | Estado Backend | Fallback |
+|----------|---------------|----------|
+| `GET /v1/metrics` | ❌ No implementado | ✅ Mock data |
+| `GET /v1/scores/recent` | ❌ No implementado | ✅ Mock data |
+| `POST /v1/health` | ✅ Implementado | N/A (funcional) |
+
+### 🔍 Cómo Funciona
+
+**Ubicación del código:** `lib/api/client.ts`
+
+```typescript
+// Ejemplo: Endpoint /metrics con fallback
+metrics: {
+  get: async (): Promise<DashboardMetrics> => {
+    try {
+      // Intenta obtener datos reales del backend
+      return await apiRequest<DashboardMetrics>('/metrics');
+    } catch (error) {
+      // Si falla, usa datos mock
+      console.warn('⚠️ /metrics endpoint not available, using mock data');
+      return {
+        total_requests_24h: 1247,
+        blocked_requests_24h: 89,
+        avg_risk_score_24h: 0.34,
+        // ... datos mock realistas
+      };
+    }
+  },
+}
+```
+
+### 📊 Datos Mock Incluidos
+
+**Dashboard Metrics (lib/api/client.ts líneas ~115-135):**
+- Total requests 24h: 1,247
+- Bloqueados: 89 (7.1%)
+- Avg risk score: 0.34
+- Avg latency: 87ms
+- Actions distribution (allow/block/challenge/friction)
+- Pillar avg scores (bot, ATO, API security, ML)
+
+**Recent Scores (lib/api/client.ts líneas ~90-165):**
+- Score response con pillar_scores
+- Signals detallados (bot_detection, account_takeover, api_security, fraud_ml)
+- Datos realistas para testing UI
+
+### 🔔 Detección de Mock Data
+
+**En browser console (F12):**
+```
+⚠️ /metrics endpoint not available, using mock data
+⚠️ /scores/recent endpoint not available, using mock data
+```
+
+Estos warnings amarillos indican que el dashboard está usando datos de prueba.
+
+### ✅ Cómo Desactivar Mock Data
+
+El fallback se desactiva **automáticamente** cuando implementes los endpoints reales en el backend Lambda:
+
+**Paso 1: Implementar endpoints en Lambda**
+```typescript
+// dygsom-fraud-detection/packages/orchestrator/src/handler.ts
+
+// Añadir endpoint /metrics
+if (event.path === '/v1/metrics' && event.httpMethod === 'GET') {
+  const metrics = await getMetricsFromDatabase(tenant.id);
+  return {
+    statusCode: 200,
+    headers: corsHeaders,
+    body: JSON.stringify(metrics),
+  };
+}
+
+// Añadir endpoint /scores/recent
+if (event.path === '/v1/scores/recent' && event.httpMethod === 'GET') {
+  const scores = await getRecentScores(tenant.id, queryParams);
+  return {
+    statusCode: 200,
+    headers: corsHeaders,
+    body: JSON.stringify(scores),
+  };
+}
+```
+
+**Paso 2: Deploy Lambda**
+```bash
+cd dygsom-fraud-detection/packages/orchestrator
+npm run deploy
+```
+
+**Paso 3: Verificar**
+- Abrir dashboard en browser
+- Abrir DevTools (F12) → Console
+- Refrescar página
+- **Warnings desaparecen** = Endpoints reales funcionando ✅
+
+### 🚀 Roadmap de Implementación
+
+**Estado Actual:**
+- ✅ Authentication via /health (funcional)
+- ❌ Dashboard metrics (mock fallback)
+- ❌ Recent scores (mock fallback)
+- ❌ Analytics endpoints (mock fallback)
+- ❌ Transactions history (mock fallback)
+- ❌ Config management (mock fallback)
+
+**Próximos Pasos:**
+1. Implementar `/v1/metrics` en Lambda
+2. Implementar `/v1/scores/recent` en Lambda
+3. Implementar `/v1/analytics/*` endpoints
+4. Dashboard usará datos reales automáticamente
+
+### 📝 Para Desarrolladores
+
+**Añadir nuevo endpoint con fallback:**
+
+```typescript
+// lib/api/client.ts
+export const api = {
+  // ...
+  myNewEndpoint: {
+    get: async () => {
+      try {
+        return await apiRequest('/my-endpoint');
+      } catch (error) {
+        console.warn('⚠️ /my-endpoint not available, using mock');
+        return { /* mock data */ };
+      }
+    }
+  }
+};
+```
+
+**Ver documentación completa:** [TROUBLESHOOTING.md](../docs/TROUBLESHOOTING.md)
+
+---
+
 ### API Endpoints Used
 
 **Currently Implemented:**
