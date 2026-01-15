@@ -10,7 +10,6 @@
  */
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { api } from '@/lib/api/client';
 import { logger } from '@/lib/logger';
 import type { Tenant } from '@/types/dashboard';
 
