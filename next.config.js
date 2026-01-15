@@ -5,15 +5,6 @@ const nextConfig = {
   // Strict mode for better development experience
   reactStrictMode: true,
 
-  // Webpack configuration for path resolution
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': path.resolve(__dirname, './'),
-    };
-    return config;
-  },
-
   // Security headers
   async headers() {
     return [
@@ -86,14 +77,13 @@ const nextConfig = {
     },
   },
 
-  // Webpack configuration
+  // Webpack configuration - applies to ALL builds (dev, prod, client, server)
   webpack: (config, { dev, isServer }) => {
-    if (!dev && !isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@': require('path').resolve(__dirname, './'),
-      };
-    }
+    // Add @ alias for path resolution
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, './'),
+    };
     return config;
   },
 }
