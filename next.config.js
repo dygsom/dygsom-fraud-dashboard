@@ -1,7 +1,18 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   // Strict mode for better development experience
   reactStrictMode: true,
+
+  // Webpack configuration for path resolution
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, './'),
+    };
+    return config;
+  },
 
   // Security headers
   async headers() {
