@@ -53,10 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function validateApiKey(key: string) {
     setIsLoading(true);
     try {
-      // Store API key temporarily for the request
-      const tempApiKey = localStorage.getItem('dygsom_api_key');
-      localStorage.setItem('dygsom_api_key', key);
-      
       // Test API key by making a minimal health check request
       // Backend will validate the API key via X-API-Key header
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/v1'}/health`, {
@@ -79,14 +75,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json();
       
-      // Extract tenant info from response or create basic tenant object
+      // Extract tenant info from response
       const tenantInfo: Tenant = {
-        id: data.tenant_id || 'unknown',
-        name: data.tenant_name || 'Unknown Tenant',
-        tier: (data.tier || 'starter') as 'starter' | 'professional' | 'enterprise',
-        api_key: key,
+        tenant_id: data.tenant_id || 'unknown',
+        tenant_name: data.tenant_name || 'DYGSOM',
+        config: data.config || {
+          pillars: {
+            bot_detection: true,
+            account_takeover: true,
+            api_security: true,
+            fraud_ml: true,
+          },
+          thresholds: {
+            bot_score: 0.7,
+            takeover_risk: 0.75,
+            api_abuse_score: 0.8,
+            ml_fraud_score: 0.85,
+          },
+          rate_limits: {
+            requests_per_minute: 100,
+            requests_per_hour: 5000,
+          },
+        },
         created_at: new Date().toISOString(),
-        status: 'active' as const,
       };
       
       setTenant(tenantInfo);
