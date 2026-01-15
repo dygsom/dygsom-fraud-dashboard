@@ -40,14 +40,14 @@ const VolumeChart: React.FC<VolumeChartProps> = ({
     amount: item.label ? parseFloat(item.label) : 0,
   }));
 
-  const formatTooltipValue = (value: any, name: string) => {
+  const formatTooltipValue = (value: any, name: string | undefined) => {
     if (name === 'volume') {
       return [value.toLocaleString(), 'Transactions'];
     }
     if (name === 'amount') {
       return [`$${value.toLocaleString()}`, 'Total Amount'];
     }
-    return [value, name];
+    return [value, name || 'Value'];
   };
 
   const formatYAxisTick = (value: number) => {

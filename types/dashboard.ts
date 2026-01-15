@@ -1,6 +1,193 @@
 /**
  * Dashboard Types
+ *
+ * Single source of truth for all dashboard-related types.
+ * Mirrors backend API responses from DYGSOM Fraud Detection API.
+ *
+ * @module types/dashboard
+ * @see {@link ../docs/ESPECIFICACION-TECNICA-FUNCIONAL-MVP.md} for API specs
  */
+
+// ============================================
+// ENUMS
+// ============================================
+
+export enum ActionType {
+  Allow = 'allow',
+  Block = 'block',
+  Challenge = 'challenge',
+  Friction = 'friction',
+}
+
+export enum PillarName {
+  BotDetection = 'bot_detection',
+  AccountTakeover = 'account_takeover',
+  ApiSecurity = 'api_security',
+  FraudMl = 'fraud_ml',
+}
+
+// ============================================
+// API RESPONSE TYPES (Backend Integration)
+// ============================================
+
+/**
+ * Fraud detection score response from backend
+ */
+export interface ScoreResponse {
+  request_id: string;
+  tenant_id: string;
+  user_id: string;
+  action: ActionType;
+  risk_score: number; // 0.0 - 1.0
+  reason: string;
+  pillar_scores: {
+    bot_detection?: number;
+    account_takeover?: number;
+    api_security?: number;
+    fraud_ml?: number;
+  };
+  signals?: PillarSignals;
+  timestamp: string; // ISO 8601
+  latency_ms: number;
+}
+
+/**
+ * Dashboard metrics (aggregated, last 24h)
+ */
+export interface DashboardMetrics {
+  total_requests_24h: number;
+  blocked_requests_24h: number;
+  avg_risk_score_24h: number;
+  avg_latency_ms_24h: number;
+  actions_distribution: {
+    allow: number;
+    block: number;
+    challenge: number;
+    friction: number;
+  };
+  pillar_avg_scores_24h: {
+    bot_detection: number;
+    account_takeover: number;
+    api_security: number;
+    fraud_ml: number;
+  };
+}
+
+/**
+ * Pillar signals (detailed detection info)
+ */
+export interface PillarSignals {
+  bot_detection?: {
+    deviceKnown: boolean;
+    ipScore: number;
+    rateSuspicious: boolean;
+    userAgentValid: boolean;
+  };
+  account_takeover?: {
+    breached: boolean;
+    impossibleTravel: boolean;
+    knownDevice: boolean;
+    velocitySuspicious: boolean;
+  };
+  api_security?: {
+    burstDetected: boolean;
+    injectionAttempts: boolean;
+    validationIssues: boolean;
+  };
+  fraud_ml?: {
+    amountAnomaly: boolean;
+    velocityAnomaly: boolean;
+    locationAnomaly: boolean;
+  };
+}
+
+/**
+ * Tenant configuration for pillars
+ */
+export interface TenantConfig {
+  pillars: {
+    bot_detection: boolean;
+    account_takeover: boolean;
+    api_security: boolean;
+    fraud_ml: boolean;
+  };
+  thresholds: {
+    bot_score: number;          // 0.0-1.0
+    ato_score: number;          // 0.0-1.0
+    api_score: number;          // 0.0-1.0
+    ml_score: number;           // 0.0-1.0
+  };
+  actions: {
+    high_risk_action: ActionType;   // Action when risk ≥ 80%
+    medium_risk_action: ActionType;  // Action when risk ≥ 60%
+    low_risk_action: ActionType;     // Action when risk < 60%
+  };
+}
+
+/**
+ * Tenant information from auth validation
+ */
+export interface Tenant {
+  tenant_id: string;
+  tenant_name: string;
+  config: TenantConfig;
+  created_at: string;
+}
+
+/**
+ * API Key response
+ */
+export interface ApiKeyResponse {
+  id: string;
+  name: string;
+  prefix: string; // "dys_prod_abc"
+  created_at: string;
+  last_used_at: string | null;
+  revoked: boolean;
+}
+
+/**
+ * Fraud rate trend data point
+ */
+export interface FraudRateTrend {
+  timestamp: string;
+  total_requests: number;
+  blocked_requests: number;
+  fraud_rate: number; // % (0-100)
+}
+
+/**
+ * Volume trend data point
+ */
+export interface VolumeTrend {
+  timestamp: string;
+  request_count: number;
+}
+
+/**
+ * Risk distribution data
+ */
+export interface RiskDistribution {
+  low: number;
+  medium: number;
+  high: number;
+  critical: number;
+}
+
+// ============================================
+// PAGINATION TYPES
+// ============================================
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  offset: number;
+  limit: number;
+}
+
+// ============================================
+// LEGACY TYPES (Compatibility)
+// ============================================
 
 export interface Transaction {
   id: string;

@@ -103,7 +103,7 @@ class Logger {
       );
     }
     
-    const result: any = {};
+    const result: Record<string, unknown> = {};
     let keyCount = 0;
     
     for (const [key, value] of Object.entries(obj)) {

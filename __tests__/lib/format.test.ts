@@ -54,8 +54,8 @@ describe('Format Utilities', () => {
     });
 
     it('handles decimal places', () => {
-      // Adjust expectation based on actual implementation
-      const result = formatNumber(1234.5678, 2);
+      // formatNumber uses Intl.NumberFormat which formats automatically
+      const result = formatNumber(1234.5678);
       expect(typeof result).toBe('string');
       expect(result).toContain('1,234');
     });

@@ -20,13 +20,7 @@ export interface PaginationParams {
   offset?: number;
 }
 
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  limit: number;
-  offset: number;
-  has_more: boolean;
-}
+// Removed PaginatedResponse - now defined in dashboard.ts as SSOT
 
 export interface ApiRequestConfig {
   timeout?: number;

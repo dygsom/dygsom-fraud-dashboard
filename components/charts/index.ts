@@ -1,10 +1,13 @@
 /**
- * Chart Components
- * 
- * Analytics and visualization components for the dashboard
+ * Charts Components
+ *
+ * Export all chart components for easy importing.
+ *
+ * @module components/charts
  */
 
-export { default as FraudRateChart } from './FraudRateChart';
-export { default as RiskDistributionChart } from './RiskDistributionChart';  
-export { default as VolumeChart } from './VolumeChart';
-export { default as DateRangeSelector } from './DateRangeSelector';
+export { FraudRateTrendChart } from './FraudRateTrendChart';
+export { VolumeTrendChart } from './VolumeTrendChart';
+export { RiskDistributionChart } from './RiskDistributionChart';
+export { RiskScoreGauge } from './RiskScoreGauge';
+export { PillarScoresChart } from './PillarScoresChart';

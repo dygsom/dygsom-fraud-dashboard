@@ -1,285 +1,99 @@
 'use client';
 
 /**
- * Authentication Context
+ * AuthContext - Global authentication state
  *
- * Manages user authentication state and provides authentication functions
- * throughout the application.
+ * Provides tenant data and API Key to all components.
+ * Handles API Key validation and authentication flow.
  *
- * Security features:
- * - JWT token management
- * - Automatic token refresh
- * - Secure storage
- * - Auto logout on token expiration
+ * @module context/AuthContext
  */
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import { authApi } from '@/lib/api';
-import { storage } from '@/lib/storage';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { api } from '@/lib/api/client';
 import { logger } from '@/lib/logger';
-import { AUTH_CONFIG } from '@/config/constants';
-import { ROUTES } from '@/config/routes';
-import { isTokenExpired, shouldShowRefreshWarning, shouldAutoLogout, getTokenExpirationMinutes } from '@/lib/utils/jwt';
-import type { User, AuthContextType, SignupRequest, LoginRequest } from '@/types';
+import type { Tenant } from '@/types/dashboard';
 
-/**
- * Auth Context
- */
+// ============================================
+// TYPES
+// ============================================
+
+interface AuthContextType {
+  tenant: Tenant | null;
+  apiKey: string | null;
+  isLoading: boolean;
+  login: (apiKey: string) => Promise<void>;
+  logout: () => void;
+}
+
+// ============================================
+// CONTEXT
+// ============================================
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * Auth Provider Props
- */
-interface AuthProviderProps {
-  children: ReactNode;
-}
+// ============================================
+// PROVIDER
+// ============================================
 
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [tenant, setTenant] = useState<Tenant | null>(null);
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-
-/**
- * Auth Provider Component
- */
-export function AuthProvider({ children }: AuthProviderProps) {
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  /**
-   * Initialize auth state from storage
-   */
+  // Restore from localStorage on mount
   useEffect(() => {
-    const initAuth = async () => {
-      if (process.env.NODE_ENV === 'development') {
-        logger.debug('Initializing Auth Context');
-      }
-      
-      try {
-        const storedToken = storage.getItem<string>(AUTH_CONFIG.tokenStorageKey);
-        
-        if (process.env.NODE_ENV === 'development') {
-          logger.debug('Stored token check', {
-            hasToken: !!storedToken,
-            tokenLength: storedToken?.length || 0
-          });
-        }
-
-        if (storedToken) {
-          // Check token validity using robust JWT utilities
-          if (isTokenExpired(storedToken) || shouldAutoLogout(storedToken)) {
-            const expirationMinutes = getTokenExpirationMinutes(storedToken);
-            logger.warn('Token expired or about to expire, clearing auth', { 
-              expirationMinutes,
-              isExpired: isTokenExpired(storedToken),
-              shouldAutoLogout: shouldAutoLogout(storedToken)
-            });
-            storage.removeItem(AUTH_CONFIG.tokenStorageKey);
-            setToken(null);
-            setUser(null);
-            return;
-          }
-
-          // Show refresh warning if needed
-          if (shouldShowRefreshWarning(storedToken)) {
-            const minutesLeft = getTokenExpirationMinutes(storedToken);
-            logger.warn('Token will expire soon', { minutesLeft });
-            // Here you could show a toast notification to the user
-          }
-          
-          setToken(storedToken);
-          
-          // Give a small delay to ensure token is set in axios interceptor
-          await new Promise(resolve => setTimeout(resolve, 50));
-
-          // Try to fetch current user with stored token
-          const currentUser = await authApi.getCurrentUser();
-          setUser(currentUser);
-          
-          // Set up token refresh timer using JWT utilities
-          const minutesUntilExpiry = getTokenExpirationMinutes(storedToken);
-          if (minutesUntilExpiry && minutesUntilExpiry > AUTH_CONFIG.refreshWarningMinutes) {
-            const refreshTime = Math.max(0, (minutesUntilExpiry - AUTH_CONFIG.refreshWarningMinutes) * 60 * 1000);
-            setTimeout(() => {
-              logger.info('Token refresh needed - please re-login');
-              logout();
-            }, refreshTime);
-          }
-
-          logger.auth('User authenticated from storage', {
-            userId: currentUser.id,
-            email: currentUser.email,
-          });
-        }
-      } catch (error: any) {
-        logger.error('Failed to initialize auth', {
-          error: error.message,
-          status: error?.status_code,
-          hasToken: !!storage.getItem<string>(AUTH_CONFIG.tokenStorageKey),
-        });
-        
-        // Only clear token if it's actually invalid (401/403)
-        if (error?.status_code === 401 || error?.status_code === 403) {
-          logger.info('Clearing invalid token');
-          storage.removeItem(AUTH_CONFIG.tokenStorageKey);
-          setToken(null);
-          setUser(null);
-        }
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initAuth();
+    const storedApiKey = localStorage.getItem('dygsom_api_key');
+    if (storedApiKey) {
+      validateApiKey(storedApiKey);
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
-  /**
-   * Login function
-   */
-  const login = useCallback(
-    async (email: string, password: string): Promise<void> => {
-      try {
-        setIsLoading(true);
-
-        const loginData: LoginRequest = { email, password };
-        const response = await authApi.login(loginData);
-
-        // Store token in localStorage FIRST
-        storage.setItem(AUTH_CONFIG.tokenStorageKey, response.access_token);
-        
-        // Set state with data from login response
-        setToken(response.access_token);
-        setUser(response.user);
-
-        logger.auth('User logged in successfully', {
-          userId: response.user.id,
-          email: response.user.email,
-          tokenLength: response.access_token.length,
-        });
-
-        // Redirect immediately
-        if (process.env.NODE_ENV === 'development') {
-          logger.debug('Login Success - Redirecting to Dashboard', {
-            hasUser: !!response.user,
-            hasToken: !!response.access_token,
-            userId: response.user.id,
-            userEmail: response.user.email,
-            dashboardRoute: ROUTES.protected.dashboard
-          });
-        }
-        router.push(ROUTES.protected.dashboard);
-      } catch (error) {
-        logger.error('Login failed', error);
-        throw error;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [router]
-  );
-
-  /**
-   * Signup function
-   */
-  const signup = useCallback(
-    async (data: SignupRequest): Promise<void> => {
-      try {
-        setIsLoading(true);
-
-        const response = await authApi.signup(data);
-
-        // Store token in localStorage
-        storage.setItem(AUTH_CONFIG.tokenStorageKey, response.access_token);
-        setToken(response.access_token);
-        setUser(response.user);
-
-        logger.auth('User signed up', {
-          userId: response.user.id,
-          email: response.user.email,
-        });
-
-        // Redirect to dashboard
-        router.push(ROUTES.protected.dashboard);
-      } catch (error) {
-        logger.error('Signup failed', error);
-        throw error;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [router]
-  );
-
-  /**
-   * Logout function
-   */
-  const logout = useCallback(() => {
-    logger.auth('User logged out', {
-      userId: user?.id,
-      email: user?.email,
-    });
-
-    // Clear token from localStorage
-    storage.removeItem(AUTH_CONFIG.tokenStorageKey);
-    setToken(null);
-    setUser(null);
-
-    // Redirect to login
-    router.push(ROUTES.public.login);
-  }, [user, router]);
-
-  /**
-   * Refresh user data
-   */
-  const refreshUser = useCallback(async (): Promise<void> => {
+  async function validateApiKey(key: string) {
+    setIsLoading(true);
     try {
-      const currentUser = await authApi.getCurrentUser();
-      setUser(currentUser);
-
-      logger.auth('User data refreshed', {
-        userId: currentUser.id,
-      });
-    } catch (error) {
-      logger.error('Failed to refresh user', error);
-      // If refresh fails, logout
-      logout();
+      const response = await api.auth.validate();
+      setTenant(response);
+      setApiKey(key);
+      localStorage.setItem('dygsom_api_key', key);
+    } catch (error: unknown) {
+      logger.error('Auth validation failed', { error });
+      setTenant(null);
+      setApiKey(null);
+      localStorage.removeItem('dygsom_api_key');
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
-  }, [logout]);
+  }
 
-  // More reliable authentication check
-  const isAuthenticated = !!token && !!user;
-  
-  const value: AuthContextType = {
-    user,
-    token,
-    isAuthenticated,
-    isLoading,
-    login,
-    signup,
-    logout,
-    refreshUser,
-  };
+  async function login(apiKey: string) {
+    await validateApiKey(apiKey);
+  }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  function logout() {
+    setTenant(null);
+    setApiKey(null);
+    localStorage.removeItem('dygsom_api_key');
+  }
+
+  return (
+    <AuthContext.Provider value={{ tenant, apiKey, isLoading, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-/**
- * useAuth hook
- *
- * Use this hook to access authentication state and functions
- *
- * @throws Error if used outside AuthProvider
- *
- * @example
- * const { user, login, logout, isAuthenticated } = useAuth();
- */
-export function useAuth(): AuthContextType {
-  const context = useContext(AuthContext);
+// ============================================
+// HOOK
+// ============================================
 
+export function useAuth() {
+  const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-
   return context;
 }

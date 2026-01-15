@@ -37,7 +37,7 @@ const FraudRateChart: React.FC<FraudRateChartProps> = ({
     fraudRatePercent: Math.round(item.fraudRate * 100 * 100) / 100, // fraudRate is 0-1, convert to percentage and round to 2 decimals
   }));
 
-  const formatTooltipValue = (value: any, name: string) => {
+  const formatTooltipValue = (value: any, name: string | undefined) => {
     if (name === 'fraudRatePercent') {
       return [`${value}%`, 'Fraud Rate'];
     }
@@ -47,7 +47,7 @@ const FraudRateChart: React.FC<FraudRateChartProps> = ({
     if (name === 'fraudCount') {
       return [value.toLocaleString(), 'Fraud Cases'];
     }
-    return [value, name];
+    return [value, name || 'Value'];
   };
 
   const formatYAxisTick = (value: number) => `${value}%`;

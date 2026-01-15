@@ -63,8 +63,6 @@ interface MobileSidebarProps {
 export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const pathname = usePathname();
 
-  console.log('MobileSidebar render - isOpen:', isOpen);
-
   // Close sidebar when route changes
   useEffect(() => {
     if (isOpen) {

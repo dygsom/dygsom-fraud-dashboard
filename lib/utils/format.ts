@@ -137,3 +137,18 @@ export function formatRiskScore(score: number | null | undefined): string {
   }
   return `${score.toFixed(0)}/100`;
 }
+
+/**
+ * Get color based on risk score (0.0 - 1.0)
+ *
+ * Used by RiskScoreGauge and PillarScoresChart for consistent color coding.
+ *
+ * @param score - Risk score (0.0 - 1.0)
+ * @returns Hex color code
+ */
+export function getRiskScoreColor(score: number): string {
+  if (score >= 0.8) return '#ef4444'; // Red - critical
+  if (score >= 0.6) return '#f97316'; // Orange - high
+  if (score >= 0.4) return '#eab308'; // Yellow - medium
+  return '#10b981'; // Green - low
+}

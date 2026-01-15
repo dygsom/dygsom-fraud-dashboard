@@ -6,7 +6,7 @@
  * Top navigation bar with DYGSOM branding, user info and actions
  */
 
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { DygsomBrand } from '@/components/ui/dygsom-logo';
 import { APP_CONFIG } from '@/config/constants';
@@ -16,7 +16,7 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
-  const { user, logout } = useAuth();
+  const { tenant, logout } = useAuth();
 
   return (
     <header className="shadow-sm border-b border-gray-800 px-4 sm:px-6 py-4 sm:py-5 mb-0" style={{ backgroundColor: '#0f172a' }}>
@@ -25,10 +25,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div className="flex items-center space-x-3 sm:space-x-6">
           {/* Mobile Menu Button */}
           <button
-            onClick={() => {
-              console.log('Hamburger menu clicked');
-              onMenuClick?.();
-            }}
+            onClick={onMenuClick}
             className="lg:hidden p-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,29 +63,23 @@ export function Header({ onMenuClick }: HeaderProps) {
             <span className="text-sm text-green-300 font-medium">Sistema Activo</span>
           </div>
           
-          {user && (
+          {tenant && (
             <>
-              {/* User Information Card */}
+              {/* Tenant Information Card */}
               <div className="flex items-center space-x-3 bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-2">
-                {/* User Avatar */}
+                {/* Tenant Avatar */}
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-semibold shadow-sm">
-                  {(user.name || user.email || 'U').charAt(0).toUpperCase()}
+                  {(tenant.tenant_name || 'T').charAt(0).toUpperCase()}
                 </div>
                 
-                {/* User Details */}
+                {/* Tenant Details */}
                 <div className="text-left">
                   <div className="text-sm font-medium text-white">
-                    {user.name || user.email}
+                    {tenant.tenant_name}
                   </div>
                   <div className="flex items-center space-x-2">
-                    {user.organization && (
-                      <>
-                        <span className="text-xs text-gray-300">{user.organization.name}</span>
-                        <span className="text-xs text-gray-500">•</span>
-                      </>
-                    )}
                     <span className="text-xs text-blue-400 font-medium">
-                      {user.role === 'admin' ? 'Administrador' : 'Usuario'}
+                      Tenant ID: {tenant.tenant_id.substring(0, 8)}...
                     </span>
                   </div>
                 </div>

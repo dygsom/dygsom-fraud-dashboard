@@ -10,15 +10,19 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'DYGSOM - Plataforma Antifraude',
-  description: 'IA antifraude diseñada para Latinoamérica. Reduce pérdidas por fraude y chargebacks en tus pagos online, sin frenar las ventas de tus clientes legítimos.',
+  description: 'DYGSOM - IA antifraude diseñada para Latinoamérica. Reduce pérdidas por fraude y chargebacks en tus pagos online, sin frenar las ventas de tus clientes legítimos.',
   keywords: 'antifraude, detección fraude, e-commerce, fintech, IA, machine learning, Latinoamérica',
   authors: [{ name: 'DYGSOM', url: 'https://www.dygsom.pe/' }],
   creator: 'DYGSOM',
   publisher: 'DYGSOM',
   icons: {
-    icon: '/dygsom-logo.svg',
-    shortcut: '/dygsom-logo.svg',
-    apple: '/dygsom-logo.svg',
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' }
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
 };
 
