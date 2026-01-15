@@ -3,20 +3,14 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "Node version:"
+        - nvm install 20
+        - nvm use 20
         - node --version
-        - echo "NPM version:"
         - npm --version
-        - echo "Installing dependencies..."
         - npm ci
     build:
       commands:
-        - echo "Building for production in sa-east-1..."
-        - echo "NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL" >> .env.production
-        - echo "NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME" >> .env.production
-        - echo "NEXT_PUBLIC_ENVIRONMENT=production" >> .env.production
-        - echo "Current directory:" && pwd
-        - echo "Files in directory:" && ls -la
+        - env | grep NEXT_PUBLIC
         - npm run build
   artifacts:
     baseDirectory: .next
