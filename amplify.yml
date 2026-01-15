@@ -13,7 +13,7 @@ frontend:
         - echo "NEXT_PUBLIC_ENVIRONMENT=production" >> .env.production
         - npm run build
   artifacts:
-    baseDirectory: .next
+    baseDirectory: .
     files:
       - '**/*'
   cache:
