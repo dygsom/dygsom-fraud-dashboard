@@ -3,14 +3,9 @@ frontend:
   phases:
     preBuild:
       commands:
-        - nvm install 20
-        - nvm use 20
-        - node --version
-        - npm --version
         - npm ci
     build:
       commands:
-        - env | grep NEXT_PUBLIC
         - npm run build
   artifacts:
     baseDirectory: .next
@@ -19,4 +14,3 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
-      - .next/cache/**/*
