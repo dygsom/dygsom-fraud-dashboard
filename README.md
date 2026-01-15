@@ -3,12 +3,15 @@
 <div align="center">
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)
+![Status](https://img.shields.io/badge/status-deployed%20QA-brightgreen.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 **Dashboard web profesional para detección de fraude en tiempo real**
+
+**🌐 QA Deployment**: https://qa.d14hmcmg18hg84.amplifyapp.com  
+**📡 API Backend**: https://y6absnh73b.execute-api.sa-east-1.amazonaws.com/prod
 
 [Características](#-características-principales) •
 [Arquitectura](#-arquitectura-tecnológica) •
@@ -96,6 +99,91 @@ Aplicación web **Next.js 14** con **App Router**, desarrollada en **TypeScript 
 - **Crear nueva:** Generación de API key con nombre personalizado
 - **Revocar:** Desactivar keys comprometidas
 - **Last used:** Timestamp de último uso
+
+---
+
+## 🔐 Authentication & API Configuration
+
+### Authentication Flow
+
+**⚠️ CRITICAL: Dashboard uses API Key authentication (not JWT)**
+
+```typescript
+// AuthContext validates tenant via /health endpoint
+const validateApiKey = async (apiKey: string) => {
+  const response = await fetch(`${API_URL}/health`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': apiKey,
+    },
+    body: JSON.stringify({
+      event_type: 'login',
+      ip_address: '127.0.0.1',
+      user_id: 'dashboard_auth_check',
+    }),
+  });
+  
+  if (response.ok) {
+    const data = await response.json();
+    // Extract tenant info from response
+    setTenant(data.tenant);
+    return true;
+  }
+  return false;
+};
+```
+
+### Environment Variables
+
+**QA Environment:**
+```bash
+NEXT_PUBLIC_API_URL=https://y6absnh73b.execute-api.sa-east-1.amazonaws.com/prod
+NEXT_PUBLIC_API_VERSION=v1
+```
+
+**Test Credentials:**
+```
+API Key: dygsom_Test2026LatamQA_SecureKey123
+Tenant: DYGSOM Test Company
+Status: active (enterprise tier)
+```
+
+### API Endpoints Used
+
+**Currently Implemented:**
+- `OPTIONS /v1/health` - CORS preflight (returns 200 + headers)
+- `POST /v1/health` - Fraud scoring + authentication validation
+
+**Planned for v1.1:**
+- `POST /v1/auth/validate` - Dedicated authentication endpoint
+- `GET /v1/dashboard` - Dashboard metrics
+- `GET /v1/analytics` - Analytics data
+- `GET /v1/transactions` - Transaction history
+- `GET /v1/config` - Tenant configuration
+
+**Note**: Currently using `/health` endpoint for both fraud scoring and authentication. Future versions will separate concerns with dedicated endpoints.
+
+### Type Definitions
+
+**Tenant Interface (aligned with backend):**
+```typescript
+interface Tenant {
+  tenant_id: string;      // UUID from database
+  tenant_name: string;    // Company name
+  tier: string;          // basic | professional | enterprise
+  status: string;        // active | inactive | suspended
+  config: {
+    features?: string[];
+    limits?: {
+      requests_per_day?: number;
+      requests_per_minute?: number;
+    };
+  };
+}
+```
+
+**⚠️ Troubleshooting**: See [../docs/FASE-6-ANALISIS-DEPLOYMENT-ISSUES.md](../docs/FASE-6-ANALISIS-DEPLOYMENT-ISSUES.md) for authentication and CORS issues.
 
 ---
 
