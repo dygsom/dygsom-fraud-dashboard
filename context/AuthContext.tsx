@@ -77,8 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Extract tenant info from response
       const tenantInfo: Tenant = {
-        tenant_id: data.tenant_id || 'unknown',
-        tenant_name: data.tenant_name || 'DYGSOM',
+        tenant_id: data.tenant_id || 'dygsom_latam_prod_2026',
+        tenant_name: data.tenant_name || 'DYGSOM LATAM',
         config: data.config || {
           pillars: {
             bot_detection: true,

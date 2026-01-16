@@ -132,18 +132,18 @@ export function PillarScoresChart({ scores, className = '' }: PillarScoresChartP
             angle={-15}
             textAnchor="end"
             height={80}
-            tick={{ fill: '#94a3b8', fontSize: 12 }}
+            tick={{ fill: '#e2e8f0', fontSize: 12 }}
             axisLine={{ stroke: '#475569' }}
           />
           <YAxis
             domain={[0, 100]}
-            tick={{ fill: '#94a3b8', fontSize: 12 }}
+            tick={{ fill: '#e2e8f0', fontSize: 12 }}
             axisLine={{ stroke: '#475569' }}
             label={{
               value: 'Score (%)',
               angle: -90,
               position: 'insideLeft',
-              style: { fill: '#94a3b8', fontSize: 12 },
+              style: { fill: '#e2e8f0', fontSize: 12 },
             }}
           />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: '#1e293b' }} />
@@ -156,7 +156,7 @@ export function PillarScoresChart({ scores, className = '' }: PillarScoresChartP
       </ResponsiveContainer>
 
       {/* Legend */}
-      <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-400">
+      <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-200">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded bg-green-500" />
           <span>Bajo (&lt;40%)</span>

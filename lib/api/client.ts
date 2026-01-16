@@ -117,50 +117,61 @@ export const api = {
         // Fallback: Mock recent score
         console.warn('⚠️ /scores/recent endpoint not available, using mock data');
         
-        const mockScore: ScoreResponse = {
-          request_id: `req_${Date.now()}`,
-          tenant_id: 'unknown',
-          user_id: 'dashboard_user',
-          action: ActionType.Allow,
-          risk_score: 0.34,
-          reason: 'Low risk - Mock data (endpoint not implemented)',
-          pillar_scores: {
-            bot_detection: 0.28,
-            account_takeover: 0.31,
-            api_security: 0.42,
-            fraud_ml: 0.35,
-          },
-          signals: {
-            bot_detection: {
-              deviceKnown: true,
-              ipScore: 0.15,
-              rateSuspicious: false,
-              userAgentValid: true,
+        // Generate multiple mock scores with variety
+        const mockScores: ScoreResponse[] = [];
+        const actions = [ActionType.Allow, ActionType.Block, ActionType.Challenge, ActionType.Allow, ActionType.Allow, ActionType.Block, ActionType.Allow, ActionType.Allow, ActionType.Allow, ActionType.Allow];
+        const riskScores = [0.34, 0.89, 0.65, 0.21, 0.45, 0.91, 0.12, 0.38, 0.29, 0.56];
+        
+        for (let i = 0; i < 10; i++) {
+          const timestamp = new Date(Date.now() - i * 3600000); // Each hour back
+          const riskScore = riskScores[i];
+          const action = actions[i];
+          
+          mockScores.push({
+            request_id: `req_17${i.toString().padStart(7, '0')}`,
+            tenant_id: 'dygsom_latam_prod_2026',
+            user_id: `user_${Math.floor(Math.random() * 10000)}`,
+            action,
+            risk_score: riskScore,
+            reason: action === ActionType.Block ? 'High risk detected' : action === ActionType.Challenge ? 'Moderate risk - Additional verification' : 'Low risk - Transaction approved',
+            pillar_scores: {
+              bot_detection: Math.max(0, riskScore - 0.1 + Math.random() * 0.1),
+              account_takeover: Math.max(0, riskScore - 0.05 + Math.random() * 0.1),
+              api_security: Math.max(0, riskScore + 0.05 + Math.random() * 0.1),
+              fraud_ml: Math.max(0, riskScore + Math.random() * 0.1),
             },
-            account_takeover: {
-              breached: false,
-              impossibleTravel: false,
-              knownDevice: true,
-              velocitySuspicious: false,
+            signals: {
+              bot_detection: {
+                deviceKnown: riskScore < 0.5,
+                ipScore: riskScore * 0.5,
+                rateSuspicious: riskScore > 0.7,
+                userAgentValid: riskScore < 0.6,
+              },
+              account_takeover: {
+                breached: riskScore > 0.8,
+                impossibleTravel: riskScore > 0.75,
+                knownDevice: riskScore < 0.5,
+                velocitySuspicious: riskScore > 0.6,
+              },
+              api_security: {
+                burstDetected: riskScore > 0.7,
+                injectionAttempts: riskScore > 0.85,
+                validationIssues: riskScore > 0.5,
+              },
+              fraud_ml: {
+                amountAnomaly: riskScore > 0.6,
+                velocityAnomaly: riskScore > 0.7,
+                locationAnomaly: riskScore > 0.65,
+              },
             },
-            api_security: {
-              burstDetected: false,
-              injectionAttempts: false,
-              validationIssues: false,
-            },
-            fraud_ml: {
-              amountAnomaly: false,
-              velocityAnomaly: false,
-              locationAnomaly: false,
-            },
-          },
-          timestamp: new Date().toISOString(),
-          latency_ms: 87,
-        };
+            timestamp: timestamp.toISOString(),
+            latency_ms: Math.floor(50 + Math.random() * 100),
+          });
+        }
 
         return {
-          data: [mockScore],
-          total: 1,
+          data: mockScores,
+          total: 10,
           offset: 0,
           limit: params?.limit || 10,
         };
@@ -343,8 +354,34 @@ export const api = {
 
   // Tenant Config
   tenant: {
-    getConfig: () =>
-      apiRequest<{ config: TenantConfig }>('/tenant/config'),
+    getConfig: async (): Promise<{ config: TenantConfig }> => {
+      try {
+        return await apiRequest<{ config: TenantConfig }>('/tenant/config');
+      } catch (error) {
+        console.warn('⚠️ /tenant/config endpoint not available, using mock data');
+        return {
+          config: {
+            pillars: {
+              bot_detection: true,
+              account_takeover: true,
+              api_security: true,
+              fraud_ml: true,
+            },
+            thresholds: {
+              bot_score: 0.7,
+              ato_score: 0.8,
+              api_score: 0.75,
+              ml_score: 0.65,
+            },
+            actions: {
+              high_risk_action: 'block' as ActionType,
+              medium_risk_action: 'challenge' as ActionType,
+              low_risk_action: 'allow' as ActionType,
+            },
+          },
+        };
+      }
+    },
     updateConfig: (config: Partial<TenantConfig>) =>
       apiRequest<{ config: TenantConfig; message: string }>(
         '/tenant/config',

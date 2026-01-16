@@ -120,7 +120,7 @@ export function RiskScoreGauge({ score, action, className = '' }: RiskScoreGauge
 
       {/* Risk Level Indicator */}
       <div className="mt-4 w-full">
-        <div className="flex justify-between text-xs text-slate-500 mb-1">
+        <div className="flex justify-between text-xs text-slate-200 mb-1">
           <span>Bajo</span>
           <span>Medio</span>
           <span>Alto</span>
